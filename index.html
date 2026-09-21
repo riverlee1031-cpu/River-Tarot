@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RIVER TAROT SYSTEM v1.0</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="crt"></div>
+<div class="window">
+  <header class="titlebar"><span>▣ RIVER TAROT</span><span class="winbtns">_ □ ×</span></header>
+  <nav class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Tools</span><span>Help</span><span class="motto">DIVINATION ✦ REFLECTION ✦ A BRIGHTER YOU</span></nav>
+  <main>
+    <aside class="sidebar">
+      <div class="moon">☾ ✦</div>
+      <button class="nav active" data-view="home">HOME</button>
+      <button class="nav" data-view="reading">READING</button>
+      <button class="nav" data-view="history">HISTORY</button>
+      <button class="nav" data-view="deck">THE DECK</button>
+      <div class="sidequote">⌛<br><br>GOOD<br>QUESTIONS<br>LEAD TO<br>DEEPER<br>PLACES.</div>
+    </aside>
+    <section class="content">
+      <div class="brand"><h1>RIVER TAROT SYSTEM <small>v1.0</small></h1><p>A 78-card retro tarot experience</p></div>
+      <section id="home" class="view active">
+        <div class="hero-actions">
+          <button id="startBtn" class="big purple">▶ START READING</button>
+          <button class="big green" data-goto="history">▤ HISTORY LOG</button>
+          <button class="big slate" data-goto="deck">▣ ABOUT THE DECK</button>
+        </div>
+        <div class="homegrid">
+          <div class="welcome panel"><h3>TAROT FOR A MORE THOUGHTFUL TOMORROW.</h3><div class="pixel-landscape">☾<br>⋆　⋆　✦<br>／\/\＿／\/\<br>~~~~ RIVER ~~~~</div><em>“Like a river, the answers always flow.”</em></div>
+          <div class="preview panel"><div id="previewCards"></div><div class="labels">PAST　✦　PRESENT　✦　FUTURE</div></div>
+          <div class="topics panel"><h3>SELECT TOPIC</h3><button data-topic="love" class="topic active">♥ LOVE</button><button data-topic="career" class="topic">▣ CAREER</button><button data-topic="money" class="topic">◉ MONEY</button><button data-topic="general" class="topic">✦ GENERAL</button></div>
+        </div>
+      </section>
+
+      <section id="reading" class="view">
+        <div class="reading-head panel"><strong>✦ YOUR THREE-CARD READING</strong><div>SELECTED TOPIC: <span id="topicBadge">♥ LOVE</span></div></div>
+        <div class="reading-grid">
+          <div>
+            <div class="spread panel" id="spread"></div>
+            <div class="summary panel"><h3>✦ THREE-CARD SUMMARY</h3><p id="summaryText">Choose a topic, draw three cards, then click each card to reveal it.</p></div>
+          </div>
+          <div class="detail panel" id="detail"><h3>CARD READING</h3><p>Click a card after drawing to reveal its meaning.</p></div>
+        </div>
+        <div class="reading-actions"><button id="drawBtn" class="big purple">↻ DRAW AGAIN</button><button id="saveBtn" class="big green">▣ SAVE TO HISTORY</button><button id="shareBtn" class="big slate">⌯ SHARE RESULT</button></div>
+        <div id="status" class="status"></div>
+      </section>
+
+      <section id="history" class="view"><div class="panel page"><h2>HISTORY LOG</h2><div id="historyList"></div><button id="clearHistory" class="retro">CLEAR HISTORY</button></div></section>
+      <section id="deck" class="view"><div class="panel page"><h2>THE DECK — 78 CARDS</h2><p>傳統 78 張塔羅結構，使用你的 RIVER TAROT 圖像。牌義以經典核心為基礎，再加上 River Reading 延伸。</p><div id="deckGrid" class="deckgrid"></div></div></section>
+    </section>
+  </main>
+  <footer><span>▲ RIVER TAROT</span><span>Built with 78 cards ◆ Upright / Reversed ◆ Mobile Friendly</span><span id="clock"></span></footer>
+</div>
+<script src="app.js"></script>
+</body></html>
