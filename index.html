@@ -64,7 +64,15 @@
         <div class="reading-grid">
           <div>
             <div class="spread panel" id="spread"></div>
-            <div class="summary panel"><h3>✦ THREE-CARD SUMMARY</h3><p id="summaryText">Choose a topic, draw three cards, then click each card to reveal it.</p></div>
+            <div class="summary panel">
+              <h3>✦ THREE-CARD SUMMARY</h3>
+              <p id="summaryText">Choose a topic, draw three cards, then click each card to reveal it.</p>
+              <div id="readingAnalysis" class="reading-analysis hidden">
+                <div class="analysis-box"><h4>⌁ OVERALL READING｜牌組解析</h4><p id="analysisText"></p></div>
+                <div class="analysis-box advice"><h4>✦ RIVER ADVICE｜行動建議</h4><p id="adviceText"></p></div>
+                <div class="analysis-box caution"><h4>⚠ WATCH FOR｜提醒</h4><p id="cautionText"></p></div>
+              </div>
+            </div>
           </div>
           <div class="detail panel" id="detail"><h3>CARD READING</h3><p>Click a card after drawing to reveal its meaning.</p></div>
         </div>

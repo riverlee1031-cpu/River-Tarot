@@ -17,11 +17,47 @@ function show(id){document.querySelectorAll('.view').forEach(v=>v.classList.togg
 function setupTopics(){document.querySelectorAll('.topic').forEach(b=>b.onclick=()=>{topic=b.dataset.topic;document.querySelectorAll('.topic').forEach(x=>x.classList.toggle('active',x===b));topicBadge.textContent=topicLabels[topic];chooseTopicBadge.textContent=topicLabels[topic]})}
 function renderPreview(){let sample=[cards.find(c=>c.slug==='18-moon'),cards.find(c=>c.slug==='17-star'),cards.find(c=>c.slug==='09-hermit')];previewCards.innerHTML=sample.map(c=>`<img src="${c.image}" alt="${c.zh}">`).join('')}
 function draw(revealView=true){if(!cards.length)return;readingMode='random';drawBtn.textContent='↻ DRAW AGAIN';let pool=[...cards],picked=[];for(let i=0;i<3;i++){let n=Math.floor(Math.random()*pool.length);let c=pool.splice(n,1)[0];picked.push({...c,orientation:Math.random()<.5?'upright':'reversed',revealed:false})}current=picked;prepareReading(revealView)}
-function prepareReading(revealView=true){renderSpread();detail.innerHTML='<h3>CARD READING</h3><p>點擊任一張牌翻開並查看牌義。</p>';summaryText.textContent='三張牌尚未全部揭曉。依序翻開「過去／現在／未來」。';status.textContent='';if(revealView)show('reading')}
+function prepareReading(revealView=true){renderSpread();detail.innerHTML='<h3>CARD READING</h3><p>點擊任一張牌翻開並查看牌義。</p>';summaryText.textContent='三張牌尚未全部揭曉。依序翻開「過去／現在／未來」。';readingAnalysis.classList.add('hidden');analysisText.textContent='';adviceText.textContent='';cautionText.textContent='';status.textContent='';if(revealView)show('reading')}
 function renderSpread(){const pos=[['PAST','WHAT YOU CARRY'],['PRESENT','WHAT IS HERE'],['FUTURE','WHAT COULD BE']];spread.innerHTML=current.map((c,i)=>`<div class="slot"><div class="card ${c.revealed?'revealed':''}" data-i="${i}"><div class="card-inner"><div class="card-face card-back"></div><div class="card-face card-front ${c.orientation==='reversed'?'reversed':''}"><img src="${c.image}" alt="${c.zh}"></div></div></div><h4>${pos[i][0]}</h4><small>${pos[i][1]}</small></div>`).join('');spread.querySelectorAll('.card').forEach(el=>el.onclick=()=>reveal(+el.dataset.i))}
 function reveal(i){current[i].revealed=true;renderSpread();showDetail(i);if(current.every(c=>c.revealed))renderSummary()}
 function showDetail(i){let c=current[i],o=c.orientation,key=topic;detail.innerHTML=`<h3>CARD READING</h3><img class="mini ${o==='reversed'?'rev':''}" src="${c.image}"><h2>${c.en}<br><small>${c.zh}</small></h2><div class="orientation">${o==='upright'?'UPRIGHT 正位':'REVERSED 逆位'}</div><h3>CORE MEANING</h3><p>${c.meanings[o].core}</p><h3>${topicLabels[key]} READING</h3><p>${c.meanings[o][key]}</p><h3>RIVER READING</h3><p>${c.river[o]}</p>`}
-function renderSummary(){let p=current.map((c,i)=>`${['過去','現在','未來'][i]}：${c.zh}${c.orientation==='upright'?'正位':'逆位'} — ${c.meanings[c.orientation][topic]}`);summaryText.textContent=p.join('　')}
+function renderSummary(){
+  let p=current.map((c,i)=>`${['過去','現在','未來'][i]}：${c.zh}${c.orientation==='upright'?'正位':'逆位'} — ${c.meanings[c.orientation][topic]}`);
+  summaryText.textContent=p.join('　');
+  const result=buildReadingAnalysis();
+  analysisText.textContent=result.analysis;
+  adviceText.textContent=result.advice;
+  cautionText.textContent=result.caution;
+  readingAnalysis.classList.remove('hidden');
+}
+function buildReadingAnalysis(){
+  const [past,present,future]=current;
+  const dir=c=>c.orientation==='upright'?'正位':'逆位';
+  const kw=c=>c.meanings[c.orientation].core.split('、').slice(0,2).join('、');
+  const upright=current.filter(c=>c.orientation==='upright').length;
+  const reversed=3-upright;
+  const majors=current.filter(c=>c.arcana==='major').length;
+  const topicNames={love:'感情',career:'工作',money:'財務',general:'整體狀態'};
+  const flow=reversed===0?'整體能量偏向順流，三個階段之間的推進感較明顯。':reversed===3?'三張皆為逆位，代表目前更適合整理、修正與釐清，而不是急著推進。':reversed===2?'逆位能量較多，表示當下仍有兩個環節需要先處理，進展可能呈現「先整理、再前進」。':'正逆位交錯，代表機會與阻力同時存在，關鍵在於你如何回應當下。';
+  const majorNote=majors>=2?`另外有 ${majors} 張大阿爾克那，這組牌比較像是在指出一個重要階段或核心課題，而不只是短期小事件。`:majors===1?'牌組中有 1 張大阿爾克那，代表其中有一個較核心的主題值得特別留意。':'三張皆為小阿爾克那，重點較偏向日常互動、實際選擇與可調整的行動。';
+  const analysis=`${topicNames[topic]}牌組的流向是：過去由「${past.zh}${dir(past)}」帶出 ${kw(past)}，現在進入「${present.zh}${dir(present)}」所代表的 ${kw(present)}，未來則朝「${future.zh}${dir(future)}」的 ${kw(future)} 發展。${flow}${majorNote}`;
+
+  const topicAdvice={
+    love:'先看彼此實際互動、界線與需求是否一致；不要只用猜測判斷對方。適合用一個清楚但不施壓的行動，去確認關係目前真正的位置。',
+    career:'把注意力放在可控制的事情：優先順序、資源、溝通與下一個具體步驟。先完成最關鍵的一件事，再決定是否擴大投入或轉向。',
+    money:'先處理現金流、風險與必要支出，再談擴張或投入。避免因一時情緒做大額決定，讓數字與現實條件替你確認方向。',
+    general:'把牌組當成一條時間線：先處理過去留下的影響，再回到現在能做的選擇。與其一次解決全部，不如先做最小但明確的下一步。'
+  };
+  const orientAdvice=future.orientation==='reversed'?'未來牌為逆位，建議把它視為「需要避免或調整的模式」，不要把它當成必然結果。':'未來牌為正位，可以把它當作目前較值得靠近的方向，但仍要透過實際行動去形成結果。';
+  const presentAdvice=present.orientation==='reversed'?`現在牌「${present.zh}」逆位是這組牌最需要先處理的位置；先釐清它所代表的卡點，再談下一步。`:`現在牌「${present.zh}」正位是目前最能使用的資源；把它的特質落實成一個具體行動。`;
+  const advice=`${topicAdvice[topic]} ${presentAdvice} ${orientAdvice}`;
+
+  let caution='塔羅提供的是象徵性的整理與反思，不是固定預言。若牌面與現實資訊衝突，以可驗證的事實與你的實際判斷為優先。';
+  if(topic==='love')caution='不要因單一次抽牌替對方下定論，也不要把牌面當成對方一定會採取某個行動的證據。以實際溝通和持續行為判斷關係。';
+  if(topic==='money')caution='涉及投資、借貸或大額支出時，不要只依牌面做決定；仍需查看金額、風險、合約與可承受損失。';
+  if(topic==='career')caution='涉及離職、簽約或重大職涯變動時，把牌面當成思考框架即可；仍要核對薪資、工時、條件與實際機會。';
+  return{analysis,advice,caution};
+}
 
 function openChoose(){readingMode='manual';manualSelection=[];chooseTopicBadge.textContent=topicLabels[topic];chooseStatus.textContent='';renderChooseGallery();renderChooseSlots();show('choose')}
 function renderChooseGallery(){if(!cards.length)return;const selectedIds=new Set(manualSelection.map(c=>c.id));chooseGallery.innerHTML=cards.map(c=>`<div class="choose-card ${selectedIds.has(c.id)?'selected':''}" data-id="${c.id}" title="${c.zh} · ${c.en}"><img loading="lazy" src="${c.image}" alt="${c.zh}"><div class="choose-card-title">${c.zh}</div></div>`).join('');chooseGallery.querySelectorAll('.choose-card').forEach(el=>el.onclick=()=>selectManualCard(+el.dataset.id,el))}
