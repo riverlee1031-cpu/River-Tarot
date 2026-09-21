@@ -3,81 +3,120 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RIVER TAROT</title>
+<meta name="theme-color" content="#090b12">
+<title>RIVER TAROT v1.0</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="crt"></div>
-<div class="window simple-window">
-  <header class="titlebar"><span>▣ RIVER TAROT</span><span class="winbtns">_ □ ×</span></header>
-  <main class="simple-main">
-    <section class="content simple-content">
-      <div class="brand simple-brand">
-        <h1>RIVER TAROT</h1>
-        <p>THREE CARDS · ONE QUESTION · YOUR READING</p>
-      </div>
+<div class="crt" aria-hidden="true"></div>
+<div class="desktop-window">
+  <header class="titlebar">
+    <span class="app-name">▣ &nbsp; RIVER TAROT</span>
+    <span class="window-controls" aria-hidden="true">_　□　×</span>
+  </header>
+  <div class="menubar">
+    <span>File</span><span>Edit</span><span>View</span><span>Tools</span><span>Help</span>
+    <span class="menu-motto">DIVINATION　✦　REFLECTION　✦　A BRIGHTER YOU</span>
+  </div>
+
+  <div class="app-grid">
+    <aside class="sidebar">
+      <div class="side-moon">☾ <small>✦</small></div>
+      <button class="side-nav active" id="homeNav" type="button">⌂ &nbsp; HOME</button>
+      <button class="side-nav" id="readingNav" type="button">▣ &nbsp; READING</button>
+      <div class="side-divider">✦</div>
+      <div class="hourglass">⌛</div>
+      <p class="side-quote">SAME<br>CARDS.<br>A DEEPER<br>YOU.</p>
+      <div class="mountain" aria-hidden="true">／\<br>／✦\<br>／___\</div>
+    </aside>
+
+    <main class="main-content">
+      <section class="brand-block">
+        <h1>RIVER TAROT <small>v1.0</small></h1>
+        <p class="subbrand">A 78-CARD RETRO TAROT EXPERIENCE</p>
+        <p class="mystic-cn">在靜謐與直覺之間，讓牌替你照見尚未說出口的答案。</p>
+        <p class="micro-line">ONE QUESTION. A DIFFERENT TOMORROW.</p>
+      </section>
 
       <section id="home" class="view active">
-        <div class="welcome-screen panel">
-          <div class="welcome-symbol">☾ ✦</div>
-          <p class="eyebrow">WELCOME TO RIVER TAROT</p>
-          <h2>Hold one clear question in your mind.</h2>
-          <p class="welcome-copy">Take a quiet moment. Think about what you truly want to understand, then choose the area your question belongs to.</p>
-          <div class="question-prompt">WHAT ARE YOU ASKING ABOUT?</div>
-          <div class="topic-grid">
-            <button data-topic="love" class="topic active"><span>♥</span><strong>LOVE</strong><small>Connection · attraction · relationships</small></button>
-            <button data-topic="career" class="topic"><span>▣</span><strong>CAREER</strong><small>Work · direction · opportunity</small></button>
-            <button data-topic="money" class="topic"><span>◉</span><strong>MONEY</strong><small>Resources · stability · decisions</small></button>
-            <button data-topic="general" class="topic"><span>✦</span><strong>GENERAL</strong><small>Clarity · timing · next steps</small></button>
+        <div class="home-layout">
+          <div class="ritual-column">
+            <section class="step-panel">
+              <div class="step-title"><span>1</span><strong>FOCUS YOUR QUESTION</strong></div>
+              <div class="focus-box">Take a quiet moment. Hold one clear question in your mind.</div>
+            </section>
+
+            <section class="step-panel">
+              <div class="step-title"><span>2</span><strong>CHOOSE A TOPIC</strong></div>
+              <div class="topic-grid">
+                <button data-topic="love" class="topic active" type="button"><span class="topic-icon">♥</span><strong>LOVE</strong><small>Connections · Attraction · Relationships</small></button>
+                <button data-topic="career" class="topic" type="button"><span class="topic-icon">▣</span><strong>CAREER</strong><small>Work · Direction · Opportunities</small></button>
+                <button data-topic="money" class="topic" type="button"><span class="topic-icon">◉</span><strong>MONEY</strong><small>Resources · Stability · Decisions</small></button>
+                <button data-topic="general" class="topic" type="button"><span class="topic-icon">✦</span><strong>GENERAL</strong><small>Clarity · Timing · Next Steps</small></button>
+              </div>
+            </section>
+
+            <section class="step-panel begin-panel">
+              <div class="step-title"><span>3</span><strong>OPEN THE CARDS</strong></div>
+              <button id="beginBtn" class="open-spread" type="button"><span>▶</span> OPEN THE SPREAD</button>
+              <p class="trust-line">TRUST THE PROCESS　✦　CHOOSE WHAT CALLS TO YOU</p>
+            </section>
           </div>
-          <button id="beginBtn" class="big purple begin-reading">OPEN THE SPREAD →</button>
-          <p class="quiet-note">Keep your question with you. The cards will stay face down until you choose.</p>
+
+          <aside class="city-panel">
+            <div class="city-copy">LIKE A RIVER,<br>THE ANSWERS<br>ALWAYS FLOW.</div>
+            <div class="pixel-city" aria-hidden="true">
+              <div class="city-moon">☾</div>
+              <div class="sky-stars">✦　·　✦　·　✧　·　✦</div>
+              <div class="skyline">▁▃▅▂▇▃▆▂▅▃▇▂▆</div>
+              <div class="water">≈ ≈ ≈ ≈ ≈ ≈ ≈ ≈</div>
+              <div class="cat">▲<br>●</div>
+              <div class="record">◉━━</div>
+              <div class="mug">▣</div>
+            </div>
+            <div class="city-caption">CITY POP · NIGHT READING</div>
+          </aside>
         </div>
       </section>
 
       <section id="choose" class="view">
-        <div class="choose-simple-head">
-          <div>
-            <p class="eyebrow">YOUR QUESTION · <span id="chooseTopicBadge">♥ LOVE</span></p>
-            <h2>Choose three cards.</h2>
-            <p>Trust the cards that catch your attention first. Choose them in order: Past, Present, Future.</p>
+        <div class="reading-topline">
+          <div><span class="eyebrow">YOUR QUESTION</span><h2 id="chooseTopicBadge">♥ LOVE</h2></div>
+          <button id="changeQuestionBtn" class="utility-btn" type="button">← CHANGE QUESTION</button>
+        </div>
+
+        <section class="spread-panel">
+          <div class="spread-heading"><strong>CHOOSE THREE CARDS</strong><span>PAST · PRESENT · FUTURE</span></div>
+          <p class="spread-note">Let your eyes move first. Pick the three cards that pull your attention before you begin to reason.</p>
+          <div class="spread-stage">
+            <div id="shuffleMessage" class="shuffle-message" aria-live="polite">SHUFFLING THE DECK…</div>
+            <div id="chooseGallery" class="choose-gallery fan-spread" aria-label="Face-down tarot spread"></div>
           </div>
-          <button id="changeQuestionBtn" class="text-button">← CHANGE QUESTION</button>
-        </div>
+        </section>
 
-        <div class="spread-stage panel">
-          <div id="shuffleMessage" class="shuffle-message" aria-live="polite">SHUFFLING THE DECK…</div>
-          <div id="chooseGallery" class="choose-gallery fan-spread" aria-label="Face-down tarot spread"></div>
-        </div>
-
-        <div class="pick-progress">
-          <span id="chooseCounter">0 / 3 SELECTED</span>
-          <span id="chooseHint">Choose the card that calls to you first.</span>
-        </div>
-
-        <div class="choose-slots minimal-slots panel" id="chooseSlots">
+        <div class="pick-progress"><span id="chooseCounter">0 / 3 SELECTED</span><span id="chooseHint">Choose the card that calls to you first.</span></div>
+        <div class="choose-slots" id="chooseSlots">
           <div class="choose-slot" data-slot="0"><span>PAST</span><small>FIRST CARD</small></div>
           <div class="choose-slot" data-slot="1"><span>PRESENT</span><small>SECOND CARD</small></div>
           <div class="choose-slot" data-slot="2"><span>FUTURE</span><small>THIRD CARD</small></div>
         </div>
-
-        <div class="choose-actions simple-actions">
-          <button id="chooseClearBtn" class="big slate">↺ RESHUFFLE</button>
-          <button id="chooseRevealBtn" class="big purple" disabled>✦ REVEAL MY READING</button>
+        <div class="choose-actions">
+          <button id="chooseClearBtn" class="secondary-btn" type="button">↺ RESHUFFLE</button>
+          <button id="chooseRevealBtn" class="primary-btn" type="button" disabled>✦ REVEAL MY READING</button>
         </div>
         <div id="chooseStatus" class="status" aria-live="polite"></div>
       </section>
 
       <section id="reading" class="view">
-        <div class="reading-head simple-reading-head">
-          <div><p class="eyebrow">YOUR THREE-CARD READING</p><h2 id="readingTopic">LOVE</h2></div>
-          <button id="newQuestionBtn" class="text-button">NEW QUESTION →</button>
+        <div class="reading-topline">
+          <div><span class="eyebrow">YOUR THREE-CARD READING</span><h2 id="readingTopic">LOVE</h2></div>
+          <button id="newQuestionBtn" class="utility-btn" type="button">NEW QUESTION →</button>
         </div>
 
-        <div class="spread panel" id="spread"></div>
+        <div class="spread result-spread" id="spread"></div>
         <p id="revealPrompt" class="reveal-prompt">Turn over each card to reveal your reading.</p>
 
-        <div id="detail" class="detail panel simple-detail">
+        <div id="detail" class="detail-panel">
           <h3>CARD READING</h3>
           <p>Select a revealed card to explore its meaning.</p>
         </div>
@@ -89,20 +128,39 @@
           <div class="analysis-box advice"><h4>RIVER ADVICE</h4><p id="adviceText"></p></div>
         </section>
 
-        <div class="reading-actions simple-actions bottom-actions">
-          <button id="chooseAgainBtn" class="big purple">✦ CHOOSE AGAIN</button>
-          <button id="newQuestionBottomBtn" class="big slate">NEW QUESTION</button>
+        <div class="reading-actions">
+          <button id="chooseAgainBtn" class="primary-btn" type="button">✦ CHOOSE AGAIN</button>
+          <button id="newQuestionBottomBtn" class="secondary-btn" type="button">NEW QUESTION</button>
         </div>
       </section>
-    </section>
-  </main>
-  <footer><span>▲ RIVER TAROT</span><span>PAST · PRESENT · FUTURE</span><span id="clock"></span></footer>
+
+      <section class="lower-strip" aria-label="Tarot quote">
+        <span>TAROT IS A CONVERSATION<br>BETWEEN WHERE YOU ARE<br>AND WHAT COULD BE.</span>
+        <span class="phases">☾　◐　●　◑　☽<br><small>DIFFERENT PATHS. A BRIGHTER YOU.</small></span>
+        <span>SAME CARDS.<br>NEW PERSPECTIVES.</span>
+      </section>
+    </main>
+  </div>
+
+  <footer class="taskbar">
+    <div class="task-left"><span class="start-box">▲</span><strong>RIVER TAROT</strong></div>
+    <div class="footer-links">
+      <a href="https://riverlee1031-cpu.github.io/River-Tarot/" target="_blank" rel="noreferrer" title="Website">◎</a>
+      <a href="https://github.com/riverlee1031-cpu/River-Tarot" target="_blank" rel="noreferrer" title="GitHub">◈</a>
+      <a href="https://www.instagram.com/riverboxing/" target="_blank" rel="noreferrer" title="Instagram">▣</a>
+      <span class="footer-url">riverlee1031-cpu.github.io/River-Tarot</span>
+    </div>
+    <a class="update-link" href="https://github.com/riverlee1031-cpu/River-Tarot" target="_blank" rel="noreferrer">v1.0 · CHECK FOR UPDATE →</a>
+    <div class="clockbox"><span>▥　♪</span><span id="clock"></span></div>
+  </footer>
 </div>
 
-  <audio id="bgMusic" src="assets/river-night-drive.mp3" preload="auto" loop></audio>
-  <button id="musicToggle" class="music-toggle" type="button" aria-label="Play background music" aria-pressed="false">
-    <span class="music-icon">▶</span><span class="music-label">CITY POP</span>
-  </button>
+<audio id="bgMusic" src="assets/river-night-drive.mp3" preload="auto" loop></audio>
+<button id="musicToggle" class="music-toggle" type="button" aria-label="Play background music" aria-pressed="false">
+  <span class="music-note">♫</span>
+  <span class="music-copy"><strong>CITY POP</strong><small>A BRIGHTER MOOD</small></span>
+  <span class="music-icon">▶</span>
+</button>
 
 <script src="app.js"></script>
 </body>

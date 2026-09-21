@@ -141,6 +141,8 @@ function bindUI(){
     document.querySelectorAll('.topic').forEach(x=>x.classList.toggle('active',x===btn));
   }));
   beginBtn.addEventListener('click',openSpread);
+  homeNav.addEventListener('click',()=>show('home'));
+  readingNav.addEventListener('click',()=>{ if(current.length===3) show('reading'); else openSpread(); });
   changeQuestionBtn.addEventListener('click',()=>show('home'));
   newQuestionBtn.addEventListener('click',()=>show('home'));
   newQuestionBottomBtn.addEventListener('click',()=>show('home'));
@@ -151,6 +153,8 @@ function bindUI(){
 
 function show(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
+  if(typeof homeNav!=='undefined') homeNav.classList.toggle('active',id==='home');
+  if(typeof readingNav!=='undefined') readingNav.classList.toggle('active',id==='choose'||id==='reading');
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
