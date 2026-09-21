@@ -38,22 +38,22 @@
 
       <section id="choose" class="view">
         <div class="choose-head panel">
-          <div><strong>✦ CHOOSE YOUR CARDS</strong><p>從 78 張牌中選 3 張：過去／現在／未來</p></div>
+          <div><strong>✦ CHOOSE YOUR CARDS</strong><p>先選主題，再從洗好的 78 張牌中憑直覺挑出 3 張。牌面在選之前不會顯示。</p></div>
           <div>SELECTED TOPIC: <span id="chooseTopicBadge">♥ LOVE</span></div>
         </div>
+        <div class="choose-toolbar">
+          <span id="chooseCounter">SELECT 0 / 3</span>
+          <span class="choose-hint">牌已洗好。請憑直覺點選牌背。</span>
+        </div>
+        <div id="chooseGallery" class="choose-gallery scattered panel" aria-label="Shuffled tarot deck"></div>
         <div class="choose-slots panel" id="chooseSlots">
           <div class="choose-slot" data-slot="0"><span>PAST</span><small>1ST CARD</small></div>
           <div class="choose-slot" data-slot="1"><span>PRESENT</span><small>2ND CARD</small></div>
           <div class="choose-slot" data-slot="2"><span>FUTURE</span><small>3RD CARD</small></div>
         </div>
-        <div class="choose-toolbar">
-          <span id="chooseCounter">SELECT 0 / 3</span>
-          <span class="choose-hint">Click a card to send it into the reading.</span>
-        </div>
-        <div id="chooseGallery" class="choose-gallery panel"></div>
         <div class="choose-actions">
           <button id="chooseBackBtn" class="big slate">← BACK</button>
-          <button id="chooseClearBtn" class="big green">↺ CLEAR SELECTION</button>
+          <button id="chooseClearBtn" class="big green">↺ RESHUFFLE</button>
           <button id="chooseRevealBtn" class="big purple" disabled>✦ REVEAL READING</button>
         </div>
         <div id="chooseStatus" class="status"></div>
@@ -68,7 +68,9 @@
               <h3>✦ THREE-CARD SUMMARY</h3>
               <p id="summaryText">Choose a topic, draw three cards, then click each card to reveal it.</p>
               <div id="readingAnalysis" class="reading-analysis hidden">
-                <div class="analysis-box"><h4>⌁ OVERALL READING｜牌組解析</h4><p id="analysisText"></p></div>
+                <div class="analysis-box"><h4>⌁ OVERALL READING｜整體解析</h4><p id="analysisText"></p></div>
+                <div class="analysis-box combo"><h4>✣ CARD CONNECTIONS｜牌組關聯</h4><p id="comboText"></p></div>
+                <div class="analysis-box conclusion"><h4>◆ CONCLUSION｜解析結論</h4><p id="conclusionText"></p></div>
                 <div class="analysis-box advice"><h4>✦ RIVER ADVICE｜行動建議</h4><p id="adviceText"></p></div>
                 <div class="analysis-box caution"><h4>⚠ WATCH FOR｜提醒</h4><p id="cautionText"></p></div>
               </div>
