@@ -15,6 +15,7 @@
       <div class="moon">☾ ✦</div>
       <button class="nav active" data-view="home">HOME</button>
       <button class="nav" data-view="reading">READING</button>
+      <button class="nav" data-view="choose">CHOOSE</button>
       <button class="nav" data-view="history">HISTORY</button>
       <button class="nav" data-view="deck">THE DECK</button>
       <div class="sidequote">⌛<br><br>GOOD<br>QUESTIONS<br>LEAD TO<br>DEEPER<br>PLACES.</div>
@@ -22,8 +23,9 @@
     <section class="content">
       <div class="brand"><h1>RIVER TAROT SYSTEM <small>v1.0</small></h1><p>A 78-card retro tarot experience</p></div>
       <section id="home" class="view active">
-        <div class="hero-actions">
-          <button id="startBtn" class="big purple">▶ START READING</button>
+        <div class="hero-actions four">
+          <button id="startBtn" class="big purple">▶ RANDOM READING</button>
+          <button id="chooseBtn" class="big violet">✦ CHOOSE YOUR CARDS</button>
           <button class="big green" data-goto="history">▤ HISTORY LOG</button>
           <button class="big slate" data-goto="deck">▣ ABOUT THE DECK</button>
         </div>
@@ -32,6 +34,29 @@
           <div class="preview panel"><div id="previewCards"></div><div class="labels">PAST　✦　PRESENT　✦　FUTURE</div></div>
           <div class="topics panel"><h3>SELECT TOPIC</h3><button data-topic="love" class="topic active">♥ LOVE</button><button data-topic="career" class="topic">▣ CAREER</button><button data-topic="money" class="topic">◉ MONEY</button><button data-topic="general" class="topic">✦ GENERAL</button></div>
         </div>
+      </section>
+
+      <section id="choose" class="view">
+        <div class="choose-head panel">
+          <div><strong>✦ CHOOSE YOUR CARDS</strong><p>從 78 張牌中選 3 張：過去／現在／未來</p></div>
+          <div>SELECTED TOPIC: <span id="chooseTopicBadge">♥ LOVE</span></div>
+        </div>
+        <div class="choose-slots panel" id="chooseSlots">
+          <div class="choose-slot" data-slot="0"><span>PAST</span><small>1ST CARD</small></div>
+          <div class="choose-slot" data-slot="1"><span>PRESENT</span><small>2ND CARD</small></div>
+          <div class="choose-slot" data-slot="2"><span>FUTURE</span><small>3RD CARD</small></div>
+        </div>
+        <div class="choose-toolbar">
+          <span id="chooseCounter">SELECT 0 / 3</span>
+          <span class="choose-hint">Click a card to send it into the reading.</span>
+        </div>
+        <div id="chooseGallery" class="choose-gallery panel"></div>
+        <div class="choose-actions">
+          <button id="chooseBackBtn" class="big slate">← BACK</button>
+          <button id="chooseClearBtn" class="big green">↺ CLEAR SELECTION</button>
+          <button id="chooseRevealBtn" class="big purple" disabled>✦ REVEAL READING</button>
+        </div>
+        <div id="chooseStatus" class="status"></div>
       </section>
 
       <section id="reading" class="view">
