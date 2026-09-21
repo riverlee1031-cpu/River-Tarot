@@ -71,3 +71,12 @@
 .card{appearance:none;border:0;padding:0;background:transparent;color:inherit}
 @media(max-width:900px){.simple-content{padding:18px 14px 24px}.welcome-screen{padding:30px 18px}.topic-grid{grid-template-columns:repeat(2,1fr)}.choose-simple-head,.simple-reading-head{align-items:flex-start}.spread-stage{min-height:300px}.simple-actions{flex-direction:column}.simple-actions .big{width:100%}.pick-progress{display:block}.pick-progress #chooseHint{display:block;margin-top:6px}}
 @media(max-width:520px){.topic-grid{grid-template-columns:1fr 1fr;gap:8px}.topic-grid .topic{min-height:112px}.welcome-screen h2{font-size:27px}.simple-brand h1{font-size:42px}.simple-brand p{letter-spacing:1.5px}.minimal-slots .choose-slot{min-height:100px}.chosen-back,.chosen-back .mystic-back{width:51px}}
+
+
+/* Background music control */
+.music-toggle{position:fixed;right:18px;bottom:18px;z-index:1200;display:flex;align-items:center;gap:9px;min-height:44px;padding:10px 13px;border:2px outset #aaa4ad;background:rgba(26,20,39,.94);color:#efe8f3;font:12px "Courier New",monospace;letter-spacing:1.4px;cursor:pointer;box-shadow:3px 3px 0 #050505,0 0 14px rgba(143,99,174,.28);backdrop-filter:blur(3px)}
+.music-toggle:hover{background:rgba(49,34,68,.96)}
+.music-toggle:active{border-style:inset;transform:translate(1px,1px);box-shadow:1px 1px 0 #050505}
+.music-toggle.playing{border-color:#99bdae;background:rgba(24,48,42,.96);box-shadow:3px 3px 0 #050505,0 0 15px rgba(95,164,139,.3)}
+.music-icon{width:16px;text-align:center;font-size:14px}.music-label{white-space:nowrap}
+@media(max-width:560px){.music-toggle{right:10px;bottom:10px;padding:9px 11px}.music-label{display:none}}

@@ -409,3 +409,38 @@ function updateClock(){
 }
 
 init();
+
+
+// Original city-pop-inspired background loop. Browsers block sound before user interaction,
+// so the first tap/click starts playback; the control remains available at bottom right.
+(function setupBackgroundMusic(){
+  const audio=document.getElementById('bgMusic');
+  const button=document.getElementById('musicToggle');
+  if(!audio||!button)return;
+  audio.volume=.38;
+  let userPaused=false;
+  const sync=()=>{
+    const playing=!audio.paused;
+    button.classList.toggle('playing',playing);
+    button.setAttribute('aria-pressed',String(playing));
+    button.setAttribute('aria-label',playing?'Pause background music':'Play background music');
+    const icon=button.querySelector('.music-icon');
+    if(icon)icon.textContent=playing?'Ⅱ':'▶';
+  };
+  async function playMusic(){
+    try{await audio.play();sync()}catch(e){sync()}
+  }
+  button.addEventListener('click',async()=>{
+    if(audio.paused){userPaused=false;await playMusic()}else{userPaused=true;audio.pause();sync()}
+  });
+  const firstGesture=()=>{
+    if(!userPaused&&audio.paused)playMusic();
+    document.removeEventListener('pointerdown',firstGesture);
+    document.removeEventListener('keydown',firstGesture);
+  };
+  document.addEventListener('pointerdown',firstGesture,{once:true});
+  document.addEventListener('keydown',firstGesture,{once:true});
+  audio.addEventListener('play',sync);
+  audio.addEventListener('pause',sync);
+  sync();
+})();
