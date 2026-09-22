@@ -13,6 +13,9 @@ const topicLabels = {
 };
 const topicTitles = { love:'LOVE', career:'CAREER', money:'MONEY', general:'GENERAL GUIDANCE' };
 const positions = ['PAST','PRESENT','FUTURE'];
+const positionZH = ['過去','現在','未來'];
+const orientationZH = {upright:'正位', reversed:'逆位'};
+const topicZH = {love:'感情', career:'工作', money:'財務', general:'整體'};
 const suitEN = {'權杖':'Wands','聖杯':'Cups','寶劍':'Swords','星幣':'Pentacles'};
 const suitProfiles = {
   Wands:{focus:'action, desire, confidence and momentum', love:'chemistry and initiative', career:'ambition and execution', money:'expansion and calculated risk', general:'direction and momentum'},
@@ -148,6 +151,7 @@ function bindUI(){
   newQuestionBottomBtn.addEventListener('click',()=>show('home'));
   chooseClearBtn.addEventListener('click',()=>openSpread(true));
   chooseRevealBtn.addEventListener('click',revealReading);
+  askChatGPTBtn.addEventListener('click',openChatGPTReading);
   chooseAgainBtn.addEventListener('click',()=>openSpread(true));
 }
 
@@ -251,9 +255,9 @@ function revealReading(){
   current=selected.map(c=>({...c,revealed:false}));
   readingTopic.textContent=topicTitles[topic];
   renderSpread();
-  detail.innerHTML='<h3>CARD READING</h3><p>Turn over a card to explore its meaning.</p>';
+  detail.innerHTML='<h3>牌卡解析</h3><p>請依序翻開三張牌，再點選任一張牌查看中文解讀。</p>';
   readingAnalysis.classList.add('hidden');
-  revealPrompt.textContent='Turn over each card to reveal your reading.';
+  revealPrompt.textContent='依序翻開三張牌，完整解析會在全部翻開後出現。';
   show('reading');
 }
 
@@ -272,27 +276,24 @@ function turnCard(i){
 
 function suitOf(c){return suitEN[c.suit]||'';}
 function coreMeaning(c){
-  const idx=c.orientation==='upright'?0:1;
-  if(c.arcana==='major')return (majorMeaning[c.slug]||['change and reflection','blocked or internalized energy'])[idx];
-  const suit=suitOf(c); return (minorMeaning[suit]?.[c.rank]||['development and practical reflection','blocked or delayed expression'])[idx];
+  const side=c.orientation==='upright'?'upright':'reversed';
+  return c.meanings?.[side]?.core || (side==='upright'?c.upright:c.reversed) || '';
 }
-function orientationLabel(c){return c.orientation==='upright'?'UPRIGHT':'REVERSED';}
+function orientationLabel(c){return orientationZH[c.orientation]||c.orientation;}
 
 function topicMeaning(c){
-  const core=coreMeaning(c);
-  const tone=c.orientation==='upright'?'This energy is available to work with now.':'This energy may be blocked, internalized or asking for adjustment.';
-  const contexts={
-    love:'In relationships, look at reciprocity, communication, boundaries and what is actually being shown through behavior.',
-    career:'In work, connect this card to your direction, resources, timing and the next practical move you can verify.',
-    money:'With money, ground the symbolism in cash flow, risk, commitments and what you can realistically afford.',
-    general:'Use this card as a lens for what is changing, what you can influence and what deserves your attention next.'
-  };
-  return `${capitalize(core)}. ${tone} ${contexts[topic]}`;
+  const side=c.orientation==='upright'?'upright':'reversed';
+  return c.meanings?.[side]?.[topic] || c.meanings?.[side]?.general || coreMeaning(c);
+}
+
+function riverMeaning(c){
+  const side=c.orientation==='upright'?'upright':'reversed';
+  return c.river?.[side] || '';
 }
 
 function showCardDetail(i){
   const c=current[i];
-  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${positions[i]}</p><h2>${c.en}</h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>CORE MEANING</h3><p>${capitalize(coreMeaning(c))}.</p><h3>${topicTitles[topic]} READING</h3><p>${topicMeaning(c)}</p>`;
+  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${positionZH[i]} · ${positions[i]}</p><h2>${c.zh} <small>${c.en}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>核心牌義</h3><p>${coreMeaning(c)}</p><h3>${topicZH[topic]}解讀</h3><p>${topicMeaning(c)}</p><h3>RIVER READING</h3><p>${riverMeaning(c)}</p>`;
 }
 
 function cardSeed(){return current.reduce((n,c,i)=>n+(c.id+1)*(i+5)+(c.orientation==='reversed'?71:0),topic.length*29);}
@@ -302,103 +303,113 @@ function isUp(c){return c.orientation==='upright';}
 
 function orientationPattern(){
   const ups=current.filter(isUp).length;
-  if(ups===3)return 'All three cards are upright, so the story moves with relatively open energy. The main task is not to force progress, but to use what is already available well.';
-  if(ups===0)return 'All three cards are reversed, which makes this reading more inward and corrective. Slow down, identify the pattern underneath the question, and avoid pushing for a quick external result.';
-  if(!isUp(current[0])&&isUp(current[1])&&isUp(current[2]))return 'The sequence moves from blockage into openness. Something difficult from the past appears to be loosening as the present becomes more workable.';
-  if(isUp(current[0])&&isUp(current[1])&&!isUp(current[2]))return 'The sequence starts with usable momentum but meets resistance in the future position. Treat that future card as an early warning rather than a fixed outcome.';
-  return ups===2?'Two upright cards give the reading more available energy than resistance, but one point still needs conscious adjustment.':'One upright card stands out as the clearest resource in an otherwise more blocked or internal process.';
+  if(ups===3)return '三張皆為正位，代表目前的能量較順，事情具備往前發展的條件；重點是把可用的資源真正落實。';
+  if(ups===0)return '三張皆為逆位，顯示這次問題較偏向內在阻礙、延遲或反覆模式。比起急著求結果，更適合先處理卡住的核心。';
+  if(!isUp(current[0])&&isUp(current[1])&&isUp(current[2]))return '牌勢由逆轉正，代表過去的阻力正在鬆動，現在開始出現比較能掌握的空間。';
+  if(isUp(current[0])&&isUp(current[1])&&!isUp(current[2]))return '前兩張能量較順，但未來牌逆位，像是提前提醒：若目前模式不調整，後面可能出現阻力。';
+  return ups===2?'兩張正位、一張逆位，整體仍有可運用的力量，但有一個關鍵環節需要特別調整。':'只有一張正位，這張牌就是目前最值得抓住的資源，其餘部分宜先整理再推進。';
 }
 
 function majorPattern(){
   const majors=current.filter(c=>c.arcana==='major').length;
-  if(majors===3)return 'All three are Major Arcana, so this question carries more weight than a passing mood. It points to a larger shift in values, identity, timing or direction.';
-  if(majors===2)return 'Two Major Arcana cards make the underlying lesson more important than the surface details. The decision may have a longer emotional or practical impact.';
-  if(majors===1)return 'One Major Arcana card acts like the anchor of the spread. Pay special attention to the position where it appears.';
-  return 'With no Major Arcana cards, the reading is strongly connected to everyday choices, habits and practical actions that can still be changed.';
+  if(majors===3)return '三張都是大阿爾克那，代表這次問題牽涉的不是短暫情緒，而是較大的價值、方向或人生階段轉換。';
+  if(majors===2)return '出現兩張大阿爾克那，表示這次選擇的影響可能比表面事件更深，值得把長期後果一起考量。';
+  if(majors===1)return '其中一張大阿爾克那是整組牌的主軸，尤其要留意它落在過去、現在或未來哪個位置。';
+  return '三張皆為小阿爾克那，焦點偏向日常互動、實際選擇與可調整的行動，變動空間相對較大。';
 }
 
 function suitPattern(){
   const minors=current.filter(c=>c.arcana==='minor');
-  const counts={}; minors.forEach(c=>{const s=suitOf(c);counts[s]=(counts[s]||0)+1;});
+  const counts={}; minors.forEach(c=>{counts[c.suit]=(counts[c.suit]||0)+1;});
   const e=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   if(!e.length)return '';
-  const [suit,count]=e[0];
-  if(count>=2){const p=suitProfiles[suit];return `${count===3?'All three':'Two'} cards are ${suit}, so ${p.focus} is a central thread. For ${topicTitles[topic].toLowerCase()}, pay particular attention to ${p[topic]}.`;}
-  if(e.length>=2){return `The spread mixes ${e[0][0]} with ${e[1][0]}, suggesting that ${suitProfiles[e[0][0]].focus} must be balanced with ${suitProfiles[e[1][0]].focus}.`;}
+  const map={
+    '權杖':'權杖強調行動、熱情、企圖與推進',
+    '聖杯':'聖杯強調感受、關係、直覺與情緒交流',
+    '寶劍':'寶劍強調思考、溝通、衝突與判斷',
+    '星幣':'星幣強調現實條件、資源、穩定與長期成果'
+  };
+  if(e[0][1]>=2)return `${e[0][1]===3?'三張':'兩張'}同屬${e[0][0]}，因此「${map[e[0][0]]}」會是這次解讀的主要脈絡。`;
+  if(e.length>=2)return `這組牌同時混合${e[0][0]}與${e[1][0]}的能量，表示不能只看單一面向，需要在不同需求之間取得平衡。`;
   return '';
 }
 
 function specialConnections(){
   const slugs=new Set(current.map(c=>c.slug));
-  return specialCombos.filter(x=>slugs.has(x[0])&&slugs.has(x[1])).map(x=>x[2]);
+  const zh=[
+    ['06-lovers','two-of-cups','「戀人＋聖杯二」把互相吸引、價值一致與雙向回應放到核心；若其中有逆位，更要觀察兩個人是否真的選擇同一段關係。'],
+    ['06-lovers','15-devil','「戀人＋惡魔」代表強烈吸引與依附同時存在。喜歡不等於適合，界線、自由與控制感比激情本身更重要。'],
+    ['16-tower','17-star','「高塔＋星星」是典型的先破後立：舊結構被打開後，才有機會重新建立更真實的希望。'],
+    ['13-death','21-world','「死神＋世界」強烈指向一個週期的結束與完成，重點不是回到原樣，而是接受收尾並進入下一階段。'],
+    ['18-moon','02-high-priestess','「月亮＋女祭司」讓直覺與不確定性同時升高。感受值得聽，但要分清楚直覺、恐懼與投射。'],
+    ['19-sun','17-star','「太陽＋星星」加強清晰、恢復與信心，代表方向逐漸看得見，但仍需要實際行動。'],
+    ['01-magician','07-chariot','「魔術師＋戰車」結合能力與推進力，與其繼續準備，不如集中資源往明確方向執行。'],
+    ['09-hermit','12-hanged-man','「隱者＋吊人」會讓節奏慢下來。此時換角度、拉開距離，比硬推更容易看見真正答案。'],
+    ['04-emperor','03-empress','「皇帝＋皇后」形成規則與滋養的互補，最好的發展通常來自界線與彈性同時存在。'],
+    ['11-justice','20-judgement','「正義＋審判」強調責任、事實與重新判斷，有些決定已經不適合再拖延。'],
+    ['08-strength','07-chariot','「力量＋戰車」代表有紀律的推進。真正有效的前進不是更用力，而是把力量放在正確方向。'],
+    ['15-devil','16-tower','「惡魔＋高塔」提醒依附、慣性或壓抑已久的問題可能被迫浮上檯面；越早主動面對，越能保留選擇。']
+  ];
+  return zh.filter(x=>slugs.has(x[0])&&slugs.has(x[1])).map(x=>x[2]);
 }
 
 function pairTransition(a,b,label){
-  const aCore=coreMeaning(a).split(',')[0], bCore=coreMeaning(b).split(',')[0];
-  let relation='continues into';
-  if(!isUp(a)&&isUp(b)) relation='begins to open into';
-  if(isUp(a)&&!isUp(b)) relation='meets resistance and shifts into';
-  if(!isUp(a)&&!isUp(b)) relation='remains unresolved and develops into';
-  return `${label}: ${a.en} (${aCore}) ${relation} ${b.en} (${bCore}).`;
+  let relation='延續到';
+  if(!isUp(a)&&isUp(b)) relation='逐漸鬆動，轉向';
+  if(isUp(a)&&!isUp(b)) relation='遇到阻力，轉成';
+  if(!isUp(a)&&!isUp(b)) relation='仍有未解的部分，進一步形成';
+  return `${label}：${a.zh}（${orientationLabel(a)}）的「${coreMeaning(a)}」${relation}${b.zh}（${orientationLabel(b)}）的「${coreMeaning(b)}」。`;
 }
 
 function topicConclusion(){
   const p=isUp(current[1]), f=isUp(current[2]);
   const key=(p?'p':'n')+(f?'p':'n');
   const base={
-    love:{pp:'There is usable emotional or relational energy in the present, and the future remains open. Watch whether attention, effort and honesty stay mutual instead of rushing to define the relationship.',pn:'There is something workable now, but the future card shows friction ahead. Boundaries, expectations or communication need attention before attraction turns into strain.',np:'The present is still blocked, yet the future opens. Progress is possible if the core issue is named clearly and behavior changes with it.',nn:'Both the present and future are more resistant. The useful question is not “How do I make this happen?” but “Does this dynamic actually meet my needs and boundaries?”'},
-    career:{pp:'You have something usable now and the path can move forward. Convert direction into a concrete result and make sure time, energy and resources can support it.',pn:'An opportunity may be visible now, but the future position shows a bottleneck. Conditions, timing, collaboration or execution may need redesign.',np:'The present is difficult, but the future opens. Solve the most important bottleneck first instead of spreading effort across too many problems.',nn:'Both present and future suggest resistance. This is a strategy-reset reading: reconsider the route, conditions and cost before pushing harder.'},
-    money:{pp:'The financial direction looks more manageable, but verify it through cash flow, downside risk and what you can genuinely afford. Upright cards are not profit guarantees.',pn:'Resources may look available now, but the future warns that risk could appear later. Check costs, deadlines, contracts and exit conditions.',np:'Current pressure can improve, but the best sequence is repair first, expansion second. Close leaks and stabilize obligations before adding new risk.',nn:'Both present and future are cautionary. Reduce unnecessary exposure, protect liquidity and delay optional risk until the numbers are clearer.'},
-    general:{pp:'The present and future have continuity. You already hold some useful resources, so steady follow-through matters more than repeatedly changing direction.',pn:'The present works, but the future shows resistance. Add risk management now instead of waiting for the problem to become obvious.',np:'The present is blocked, but the future opens. Treat the current obstacle as a process problem, not a final verdict.',nn:'Both present and future ask for simplification. Slow down, reduce noise and reorder priorities before deciding what comes next.'}
+    love:{pp:'目前關係中有可運用的情感能量，未來仍有發展空間。重點是觀察投入、誠實與回應是否雙向。',pn:'現在看起來仍有可行之處，但未來牌出現阻力。界線、期待與溝通需要先處理，否則吸引力容易變成消耗。',np:'現在仍卡住，但未來開始打開。只要核心問題能被說清楚、行為也跟著改變，發展仍有空間。',nn:'現在與未來都偏阻滯。與其問「怎麼讓它發生」，更值得問「這段互動是否真的符合我的需要與界線」。'},
+    career:{pp:'現在有可用資源，未來也具備前進條件。把方向化成具體成果，並確認時間、能力與資源能否承接。',pn:'目前可能看得到機會，但未來有瓶頸。條件、時機、合作方式或執行策略需要重新設計。',np:'現在雖然困難，但未來有打開的跡象。先處理最關鍵的瓶頸，比同時解決所有問題更有效。',nn:'現在與未來都偏阻力，這比較像一次策略重整：先重新評估路線、成本與條件，再決定是否繼續加力。'},
+    money:{pp:'財務方向較可控，但仍要以現金流、風險與可承受範圍驗證。正位並不等於保證獲利。',pn:'目前資源看似可用，但未來有風險訊號。先確認成本、期限、合約與退出條件。',np:'目前壓力有機會改善，但順序應該是先修補、再擴張。先穩定責任與漏洞，再承擔新風險。',nn:'現在與未來都偏保守訊號。減少不必要曝險、保留流動性，等數字更清楚後再做選擇。'},
+    general:{pp:'現在與未來具有連續性，你已經握有可用資源，穩定執行比頻繁換方向更重要。',pn:'現在能推進，但未來有阻力。越早加入風險管理，越能避免問題累積。',np:'現在卡住，但未來有打開的可能。把當前障礙視為流程問題，而不是最終答案。',nn:'現在與未來都要求簡化。先降低雜訊、重新排序優先順序，再決定下一步。'}
   };
   return base[topic][key];
 }
 
 function adviceText(){
   const pools={
-    love:[
-      'Return to observable behavior: consistency, effort, boundaries and whether both people are actually participating. Choose one honest, low-pressure conversation instead of filling gaps with assumptions.',
-      'Separate what you hope the other person feels from what they repeatedly do. If you want to move closer, take one small action that lets you observe a real response.',
-      'Do not ask only whether there is chemistry. Ask whether the connection can be healthy, mutual and sustainable. Let behavior carry more weight than fantasy.'
-    ],
-    career:[
-      'Turn the present card into one action you can complete within seven days: apply, negotiate, finish a piece of work, practice a skill or verify a condition. Let evidence guide the next step.',
-      'Find the single biggest bottleneck. List time, pay, skill, cooperation and risk, then fix the one factor that most affects the outcome.',
-      'Bring the decision back to real conditions: opportunity cost, growth, income, workload and sustainability. Symbolism can show direction; facts decide whether the route works.'
-    ],
-    money:[
-      'Make a numbers-first snapshot: cash, fixed expenses, debt, reserves and maximum acceptable loss. Decide on new commitments only after those are visible.',
-      'Protect cash flow before chasing returns. If the question involves investment or a large purchase, define a limit, an exit condition and the worst-case scenario first.',
-      'Separate “I want this” from “I can safely carry this.” Stabilize essentials and downside risk before expanding.'
-    ],
-    general:[
-      'Use the spread as an order of operations: stop repeating the past pattern, use the strength of the present card, then move toward the healthier expression of the future card.',
-      'Do not solve everything at once. Choose one small step that can test the direction today, then use real feedback before asking the cards again.',
-      'Ask one practical question: “What can I influence right now?” Start there. The rest of the reading becomes clearer through action.'
-    ]
+    love:['回到可觀察的行為：一致性、投入、界線，以及雙方是否真的都有參與。比起猜測，做一次低壓但誠實的溝通更有用。','把「你希望對方怎麼想」和「對方實際怎麼做」分開。如果想靠近，可以做一個小幅度、可觀察回應的動作。','不要只問有沒有火花，也要問這段關係是否健康、互相且能長期維持。讓行為比想像更有份量。'],
+    career:['把現在牌轉成七天內能完成的一個動作：投遞、談條件、完成作品、練技能或確認工作條件，用結果決定下一步。','找出最大的瓶頸。把時間、薪資、能力、合作與風險列出來，先修正最影響結果的那一項。','把決策拉回現實條件：機會成本、成長、收入、工作量與可持續性。牌能指出方向，條件決定這條路能不能走。'],
+    money:['先做一張數字表：現金、固定支出、債務、預備金與最大可承受損失。看清楚後再決定是否新增承諾。','先保護現金流，再談報酬。若涉及投資或大額支出，先設定上限、退出條件與最壞情況。','把「我想要」和「我安全負擔得起」分開。先穩定基本盤與下行風險，再考慮擴張。'],
+    general:['把三張牌當成行動順序：停止重複過去模式、使用現在牌的優勢，再往未來牌較健康的方向走。','不要一次解決全部。今天先做一個能測試方向的小步驟，再用真實回饋決定下一步。','問自己一個實際問題：「我現在能影響什麼？」先從那裡開始，其他答案會隨行動變得更清楚。']
   };
   const present=current[1];
-  const finalLine=isUp(present)?`${present.en} is the strongest usable resource in the present position. Put its healthiest quality into action.`:`${present.en} reversed is the first knot to untangle. Work on that pattern before trying to force the future.`;
+  const finalLine=isUp(present)?`現在位置的「${present.zh}」是最可用的資源，請把它最健康的特質落實到行動。`:`現在位置的「${present.zh}」逆位是第一個要處理的結，先整理這個模式，再急著推向未來。`;
   return `${chooseVariant(pools[topic],17)} ${finalLine}`;
 }
 
 function buildAnalysis(){
   const [past,present,future]=current;
   const opening=chooseVariant([
-    `This ${topicTitles[topic].toLowerCase()} reading works best as one moving story rather than three separate answers.`,
-    `The key is the transition: what the past created, what the present asks of you, and what the future may become if the pattern continues.`,
-    `Read these cards as a sequence. The strongest message is not any single card, but how the energy changes from one position to the next.`
+    `這組${topicZH[topic]}牌比較適合當成一條連續故事來讀，而不是三個彼此獨立的答案。`,
+    `重點在於變化：過去形成了什麼、現在要求你看見什麼，以及如果目前模式延續，未來可能走向哪裡。`,
+    `這三張牌的訊息藏在前後關係裡。比起單看一張牌，更重要的是能量如何從過去流向現在，再走向未來。`
   ]);
-  const flow=` Past: ${past.en} (${orientationLabel(past)}) — ${coreMeaning(past)}. Present: ${present.en} (${orientationLabel(present)}) — ${coreMeaning(present)}. Future: ${future.en} (${orientationLabel(future)}) — ${coreMeaning(future)}.`;
+  const flow=` 過去是「${past.zh}」${orientationLabel(past)}：${coreMeaning(past)}；現在是「${present.zh}」${orientationLabel(present)}：${coreMeaning(present)}；未來是「${future.zh}」${orientationLabel(future)}：${coreMeaning(future)}。`;
   const overall=`${opening}${flow} ${orientationPattern()} ${majorPattern()}`;
-  const connections=[pairTransition(past,present,'Past → Present'),pairTransition(present,future,'Present → Future'),suitPattern(),...specialConnections()].filter(Boolean).join(' ');
-  const futureFrame=isUp(future)?`${future.en} describes a possible direction if the current pattern continues; it still needs real choices and action to become concrete.`:`${future.en} reversed is better read as a pattern to adjust or avoid, not a prediction that must happen.`;
+  const connections=[pairTransition(past,present,'過去 → 現在'),pairTransition(present,future,'現在 → 未來'),suitPattern(),...specialConnections()].filter(Boolean).join(' ');
+  const futureFrame=isUp(future)?`未來位置的「${future.zh}」描述的是目前模式繼續下去時的一種可能方向，它仍需要真實選擇與行動才會變得具體。`:`未來位置的「${future.zh}」逆位比較適合視為需要調整或避免的模式，而不是一定會發生的預言。`;
   const conclusion=`${topicConclusion()} ${futureFrame}`;
   return {overall,connections,conclusion,advice:adviceText()};
 }
 
+function openChatGPTReading(){
+  if(current.length!==3)return;
+  const cardLines=current.map((c,i)=>`${positionZH[i]}：${c.zh}（${c.en}）${orientationLabel(c)}`).join('；');
+  const prompt=`請用繁體中文深入解讀我的三張塔羅牌。主題：${topicZH[topic]}。牌陣是過去／現在／未來。${cardLines}。請分析三張牌彼此的連動、正逆位的影響、時間線的轉折、可能的核心問題與具體行動建議；不要把塔羅當成必然預言，請把它當作反思與決策參考。`;
+  const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
+  window.open(url,'_blank','noopener,noreferrer');
+}
+
 function renderAnalysis(){
-  revealPrompt.textContent='Your full reading is open.';
+  revealPrompt.textContent='三張牌已全部翻開，以下為完整中文解析。';
   const r=buildAnalysis();
   analysisText.textContent=r.overall;
   comboText.textContent=r.connections;

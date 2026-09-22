@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090b12">
-<title>RIVER TAROT v1.0</title>
+<title>RIVER TAROT v1.1</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,7 +32,7 @@
 
     <main class="main-content">
       <section class="brand-block">
-        <h1>RIVER TAROT <small>v1.0</small></h1>
+        <h1>RIVER TAROT <small>v1.1</small></h1>
         <p class="subbrand">A 78-CARD RETRO TAROT EXPERIENCE</p>
         <p class="mystic-cn">在靜謐與直覺之間，讓牌替你照見尚未說出口的答案。</p>
         <p class="micro-line">ONE QUESTION. A DIFFERENT TOMORROW.</p>
@@ -117,19 +117,20 @@
         <p id="revealPrompt" class="reveal-prompt">Turn over each card to reveal your reading.</p>
 
         <div id="detail" class="detail-panel">
-          <h3>CARD READING</h3>
-          <p>Select a revealed card to explore its meaning.</p>
+          <h3>牌卡解析</h3>
+          <p>翻開牌卡後，點選任一張牌查看中文解讀。</p>
         </div>
 
         <section id="readingAnalysis" class="reading-analysis hidden">
-          <div class="analysis-box"><h4>OVERALL READING</h4><p id="analysisText"></p></div>
-          <div class="analysis-box combo"><h4>CARD CONNECTIONS</h4><p id="comboText"></p></div>
-          <div class="analysis-box conclusion"><h4>CONCLUSION</h4><p id="conclusionText"></p></div>
-          <div class="analysis-box advice"><h4>RIVER ADVICE</h4><p id="adviceText"></p></div>
+          <div class="analysis-box"><h4>整體解析</h4><p id="analysisText"></p></div>
+          <div class="analysis-box combo"><h4>牌組關聯</h4><p id="comboText"></p></div>
+          <div class="analysis-box conclusion"><h4>結論</h4><p id="conclusionText"></p></div>
+          <div class="analysis-box advice"><h4>行動建議</h4><p id="adviceText"></p></div>
         </section>
 
-        <div class="reading-actions">
+        <div class="reading-actions three-actions">
           <button id="chooseAgainBtn" class="primary-btn" type="button">✦ CHOOSE AGAIN</button>
+          <button id="askChatGPTBtn" class="chatgpt-btn" type="button">✦ ASK CHATGPT TO READ</button>
           <button id="newQuestionBottomBtn" class="secondary-btn" type="button">NEW QUESTION</button>
         </div>
       </section>
@@ -146,11 +147,10 @@
     <div class="task-left"><span class="start-box">▲</span><strong>RIVER TAROT</strong></div>
     <div class="footer-links">
       <a href="https://riverlee1031-cpu.github.io/River-Tarot/" target="_blank" rel="noreferrer" title="Website">◎</a>
-      <a href="https://github.com/riverlee1031-cpu/River-Tarot" target="_blank" rel="noreferrer" title="GitHub">◈</a>
       <a href="https://www.instagram.com/riverboxing/" target="_blank" rel="noreferrer" title="Instagram">▣</a>
       <span class="footer-url">riverlee1031-cpu.github.io/River-Tarot</span>
     </div>
-    <a class="update-link" href="https://github.com/riverlee1031-cpu/River-Tarot" target="_blank" rel="noreferrer">v1.0 · CHECK FOR UPDATE →</a>
+    <span class="update-link">v1.1 · UPDATE 01</span>
     <div class="clockbox"><span>▥　♪</span><span id="clock"></span></div>
   </footer>
 </div>
