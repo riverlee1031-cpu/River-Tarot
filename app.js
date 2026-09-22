@@ -152,6 +152,8 @@ function bindUI(){
   chooseClearBtn.addEventListener('click',()=>openSpread(true));
   chooseRevealBtn.addEventListener('click',revealReading);
   askChatGPTBtn.addEventListener('click',openChatGPTReading);
+  shareImageBtn.addEventListener('click',async()=>{await generateShareImage(true);});
+  shareIGBtn.addEventListener('click',shareToInstagram);
   chooseAgainBtn.addEventListener('click',()=>openSpread(true));
 }
 
@@ -373,16 +375,36 @@ function topicConclusion(){
   return base[topic][key];
 }
 
-function adviceText(){
+function adviceSteps(){
   const pools={
-    love:['回到可觀察的行為：一致性、投入、界線，以及雙方是否真的都有參與。比起猜測，做一次低壓但誠實的溝通更有用。','把「你希望對方怎麼想」和「對方實際怎麼做」分開。如果想靠近，可以做一個小幅度、可觀察回應的動作。','不要只問有沒有火花，也要問這段關係是否健康、互相且能長期維持。讓行為比想像更有份量。'],
-    career:['把現在牌轉成七天內能完成的一個動作：投遞、談條件、完成作品、練技能或確認工作條件，用結果決定下一步。','找出最大的瓶頸。把時間、薪資、能力、合作與風險列出來，先修正最影響結果的那一項。','把決策拉回現實條件：機會成本、成長、收入、工作量與可持續性。牌能指出方向，條件決定這條路能不能走。'],
-    money:['先做一張數字表：現金、固定支出、債務、預備金與最大可承受損失。看清楚後再決定是否新增承諾。','先保護現金流，再談報酬。若涉及投資或大額支出，先設定上限、退出條件與最壞情況。','把「我想要」和「我安全負擔得起」分開。先穩定基本盤與下行風險，再考慮擴張。'],
-    general:['把三張牌當成行動順序：停止重複過去模式、使用現在牌的優勢，再往未來牌較健康的方向走。','不要一次解決全部。今天先做一個能測試方向的小步驟，再用真實回饋決定下一步。','問自己一個實際問題：「我現在能影響什麼？」先從那裡開始，其他答案會隨行動變得更清楚。']
+    love:[
+      ['先看行為，不只看感覺。觀察對方的回應是否穩定、主動且一致。','若你想推進，提出一個低壓、清楚的小邀請，讓關係進入可觀察的回應。','若互動反覆消耗你，先收回注意力，保護界線，再決定是否繼續投入。'],
+      ['把「你希望對方怎麼想」和「對方實際怎麼做」分開。','安排一次誠實但不逼迫的對話，確認彼此期待是否一致。','如果答案仍然模糊，就把時間拉長一點，讓對方用行動而不是嘴巴證明。'],
+      ['不要只問有沒有火花，也要問這段關係是否健康。','把你的底線與需要寫出來，避免被情緒牽著走。','先追求互相、穩定、可持續，再決定是否更深投入。']
+    ],
+    career:[
+      ['把現在牌意轉成七天內能完成的一個動作，例如投遞、談條件、完成作品或練技能。','找出最卡的瓶頸，只修正最影響結果的那一項。','用實際回饋判斷是否繼續，不要只停留在想像中的可能性。'],
+      ['把時間、收入、成長與可持續性列成一張表。','先確認你當下最需要的是曝光、穩定、學習，還是現金流。','做決定時讓現實條件與長期方向同時進場。'],
+      ['如果局勢混亂，先縮小目標，不必一次全改。','先完成一個最小可行行動，再從結果修正策略。','把焦慮轉成節奏：今天做什麼、這週完成什麼、下週檢查什麼。']
+    ],
+    money:[
+      ['先做一張數字表：現金、固定支出、負債、預備金與可承受損失。','先保護現金流，再考慮新的投入或擴張。','任何高風險決定都先設定上限與退出條件。'],
+      ['把「想要」與「負擔得起」分開。','若涉及投資、合夥或大額消費，先確認最壞情況是否承受得住。','穩住基本盤後，再追求成長或報酬。'],
+      ['如果你正感到壓力，先止漏而不是硬撐。','減少不必要曝險，保留彈性與流動性。','等資訊更清楚，再做更大的承諾。']
+    ],
+    general:[
+      ['把三張牌當作行動順序：停止重複的舊模式、使用現在可用的資源、朝未來較健康的方向走。','先做一個小步驟，不用一次解決全部。','觀察真實回饋，再決定下一步。'],
+      ['問自己：我現在真正能影響的是什麼？','把注意力從失控部分移回可行動部分。','一旦方向開始清楚，就穩定執行，不必過度反覆。'],
+      ['如果你感到卡住，先簡化環境與選項。','把優先順序排出來，一次處理一件事。','用可驗證的結果替代過度腦補與猜測。']
+    ]
   };
+  const steps=chooseVariant(pools[topic],17).slice();
   const present=current[1];
-  const finalLine=isUp(present)?`現在位置的「${present.zh}」是最可用的資源，請把它最健康的特質落實到行動。`:`現在位置的「${present.zh}」逆位是第一個要處理的結，先整理這個模式，再急著推向未來。`;
-  return `${chooseVariant(pools[topic],17)} ${finalLine}`;
+  steps.push(isUp(present)?`把現在位置「${present.zh}」最健康的特質落實到今天就能做的一個具體行動。`:`先處理現在位置「${present.zh}」逆位所指出的卡點，再談加速或推進。`);
+  return steps.slice(0,3);
+}
+function adviceText(){
+  return `你現在最需要的不是更多猜測，而是把牌組的提醒轉成可執行的小步驟。先從一個最實際、最可驗證的行動開始，讓答案透過行動浮現。`;
 }
 
 function buildAnalysis(){
@@ -408,15 +430,99 @@ function openChatGPTReading(){
   window.open(url,'_blank','noopener,noreferrer');
 }
 
+
+function buildShareCaption(){
+  const cardLines=current.map((c,i)=>`${positionZH[i]}｜${c.zh} ${orientationLabel(c)}`).join('\n');
+  const summary=conclusionText.textContent || buildAnalysis().conclusion;
+  const steps=adviceSteps();
+  return `River Tarot 三張牌解讀\n主題：${topicZH[topic]}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
+}
+
+async function generateShareImage(showStatusMsg=false){
+  if(current.length!==3 || !current.every(c=>c.revealed)){
+    if(showStatusMsg) shareStatus.textContent='請先翻開三張牌，再生成分享圖。';
+    return null;
+  }
+  if(showStatusMsg) shareStatus.textContent='正在生成分享圖…';
+  const canvas=document.getElementById('shareCanvas');
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#0b1020'); bg.addColorStop(.55,'#12152f'); bg.addColorStop(1,'#1b1031');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+  for(let i=0;i<90;i++){ctx.fillStyle=`rgba(220,200,255,${Math.random()*0.8})`; ctx.fillRect(Math.random()*W,Math.random()*H*.55,2,2)}
+  ctx.strokeStyle='rgba(196,124,237,.55)'; ctx.lineWidth=4; ctx.strokeRect(22,22,W-44,H-44);
+  ctx.fillStyle='#efe7ff'; ctx.font='bold 58px Georgia'; ctx.fillText('RIVER TAROT',74,96);
+  ctx.fillStyle='#cbb7ea'; ctx.font='28px Courier New'; ctx.fillText(`三張牌解讀  ·  ${topicZH[topic]}`,76,142);
+  ctx.fillStyle='#dcd2ef'; ctx.font='22px serif';
+  const dateStr=new Date().toLocaleDateString('zh-TW'); ctx.fillText(dateStr,W-220,96);
+  const imgs=await Promise.all(current.map(c=>loadImg(c.image)));
+  const cardW=240, cardH=360, topY=190; const xs=[110,420,730];
+  imgs.forEach((img,i)=>{
+    const x=xs[i], y=topY + (i===1?0:18);
+    ctx.save();
+    ctx.translate(x+cardW/2,y+cardH/2);
+    const ang=i===0?-0.08:i===2?0.08:0;
+    ctx.rotate(ang);
+    if(current[i].orientation==='reversed') ctx.rotate(Math.PI);
+    ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18; ctx.fillStyle='#e8d7b8'; roundRect(ctx,-cardW/2,-cardH/2,cardW,cardH,12); ctx.fill();
+    ctx.drawImage(img,-cardW/2+8,-cardH/2+8,cardW-16,cardH-16);
+    ctx.restore();
+    ctx.fillStyle='#f3ebff'; ctx.font='bold 27px Courier New'; ctx.textAlign='center'; ctx.fillText(positionZH[i], x+cardW/2, topY+cardH+62);
+    ctx.fillStyle='#cfb3ff'; ctx.font='22px "Microsoft JhengHei"'; ctx.fillText(`${current[i].zh} ${orientationLabel(current[i])}`, x+cardW/2, topY+cardH+95);
+  });
+  ctx.textAlign='left';
+  ctx.fillStyle='rgba(10,12,22,.55)'; roundRect(ctx,64,700,952,255,18); ctx.fill(); ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('結論',86,742);
+  ctx.fillStyle='#f2edf9'; ctx.font='24px "Microsoft JhengHei"';
+  let y=wrapText(ctx,(conclusionText.textContent || buildAnalysis().conclusion),86,782,905,36,4);
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('行動建議',86,y+20);
+  ctx.fillStyle='#f2edf9'; ctx.font='23px "Microsoft JhengHei"';
+  const steps=adviceSteps();
+  steps.forEach((t,idx)=>{ y=wrapText(ctx,`${idx+1}. ${t}`,92,y+62,890,32,2); y+=10; });
+  ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New'; ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
+  ctx.fillStyle='#c3a5ea'; ctx.font='20px Courier New'; ctx.fillText('v1.2 · UPDATE 02',W-270,H-68);
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  const file=new File([blob],`river-tarot-${Date.now()}.png`,{type:'image/png'});
+  window.__riverShareFile=file;
+  window.__riverShareUrl=URL.createObjectURL(blob);
+  if(showStatusMsg) shareStatus.textContent='分享圖已生成，可直接分享到 IG 或先下載。';
+  return {blob,file,url:window.__riverShareUrl};
+}
+
+async function shareToInstagram(){
+  if(current.length!==3 || !current.every(c=>c.revealed)){
+    shareStatus.textContent='請先翻開三張牌，再分享。';
+    return;
+  }
+  const asset = window.__riverShareFile ? {file:window.__riverShareFile,url:window.__riverShareUrl} : await generateShareImage(false);
+  const text=buildShareCaption();
+  try{
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[asset.file]})){
+      await navigator.share({files:[asset.file],title:'River Tarot Reading',text});
+      shareStatus.textContent='已開啟分享視窗，若手機支援可直接選擇 Instagram。';
+      return;
+    }
+  }catch(err){/* fall through */}
+  const a=document.createElement('a'); a.href=asset.url; a.download=asset.file.name; a.click();
+  try{ await navigator.clipboard.writeText(text); shareStatus.textContent='已下載分享圖，並複製貼文文字。接著可手動上傳到 IG。'; }
+  catch(e){ shareStatus.textContent='已下載分享圖。IG 網頁無法保證直接帶圖發布，請手動上傳到 IG。'; }
+}
+
 function renderAnalysis(){
   revealPrompt.textContent='三張牌已全部翻開，以下為完整中文解析。';
   const r=buildAnalysis();
   analysisText.textContent=r.overall;
   comboText.textContent=r.connections;
   conclusionText.textContent=r.conclusion;
-  adviceText.textContent=r.advice;
+  adviceText.innerHTML=renderAdviceHTML(r.advice, adviceSteps());
   readingAnalysis.classList.remove('hidden');
 }
+
+function renderAdviceHTML(intro,steps){
+  return `<p class="advice-intro">${intro}</p><ol>${steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+}
+
 
 function updateClock(){
   const d=new Date();
