@@ -18,8 +18,8 @@ const topicLabels = {
   general: '✦ GENERAL'
 };
 const topicTitles = { love:'LOVE', career:'CAREER', money:'MONEY', general:'GENERAL GUIDANCE' };
-const positions = ['PAST','PRESENT','FUTURE'];
-const positionZH = ['過去','現在','未來'];
+const positions = ['ME','THEM','CURRENT DYNAMIC','ADVICE'];
+const positionZH = ['我','對方','關係現況','建議'];
 const orientationZH = {upright:'正位', reversed:'逆位'};
 const topicZH = {love:'感情', career:'工作', money:'財務', general:'整體'};
 const suitEN = {'權杖':'Wands','聖杯':'Cups','寶劍':'Swords','星幣':'Pentacles'};
@@ -157,7 +157,7 @@ function bindUI(){
   });
   beginBtn.addEventListener('click',openSpread);
   homeNav.addEventListener('click',()=>show('home'));
-  readingNav.addEventListener('click',()=>{ if(current.length===3) show('reading'); else openSpread(); });
+  readingNav.addEventListener('click',()=>{ if(current.length===4) show('reading'); else openSpread(); });
   changeQuestionBtn.addEventListener('click',()=>show('home'));
   newQuestionBtn.addEventListener('click',()=>show('home'));
   newQuestionBottomBtn.addEventListener('click',()=>show('home'));
@@ -194,7 +194,7 @@ function openSpread(isReshuffle=false){
   shuffledDeck=shuffle(cards);
   chooseTopicBadge.textContent=topicLabels[topic];
   chooseQuestionText.textContent=questionText;
-  chooseCounter.textContent='0 / 3 SELECTED';
+  chooseCounter.textContent='0 / 4 SELECTED';
   chooseHint.textContent=isReshuffle?'The deck is moving again. Let your attention settle naturally.':'Choose the card that calls to you first.';
   chooseStatus.textContent='';
   chooseRevealBtn.disabled=true;
@@ -226,7 +226,7 @@ function renderFan(){
 }
 
 function pickCard(id,el){
-  if(selected.length>=3 || selected.some(c=>c.id===id)) return;
+  if(selected.length>=4 || selected.some(c=>c.id===id)) return;
   const base=cards.find(c=>c.id===id);
   const item={...base,orientation:Math.random()<.5?'upright':'reversed',revealed:false};
   const slot=document.querySelector(`.choose-slot[data-slot="${selected.length}"]`);
@@ -235,9 +235,9 @@ function pickCard(id,el){
   el.classList.add('selected');
   renderSlots();
   const n=selected.length;
-  chooseCounter.textContent=`${n} / 3 SELECTED`;
-  chooseHint.textContent=n===1?'Now choose the card for your present.':n===2?'One last card — choose your future.':'Your three cards are chosen.';
-  if(n===3){
+  chooseCounter.textContent=`${n} / 4 SELECTED`;
+  chooseHint.textContent=n===1?'Now choose the card that represents them.':n===2?'Now choose the card for your current dynamic.':n===3?'One last card — choose your advice.':'Your four cards are chosen.';
+  if(n===4){
     chooseRevealBtn.disabled=false;
     chooseRevealBtn.classList.add('pulse-ready');
     chooseStatus.textContent='YOUR READING IS READY.';
@@ -267,25 +267,25 @@ function renderSlots(){
     if(c){
       slot.innerHTML=`<div class="chosen-back"><span class="mystic-back"><i>☾</i><b>RIVER TAROT</b></span></div><div class="slot-caption">${positions[i]} · SELECTED</div>`;
     }else{
-      slot.innerHTML=`<span>${positions[i]}</span><small>${['FIRST','SECOND','THIRD'][i]} CARD</small>`;
+      slot.innerHTML=`<span>${positions[i]}</span><small>${positionZH[i]}</small>`;
     }
   });
 }
 
 function revealReading(){
-  if(selected.length!==3)return;
+  if(selected.length!==4)return;
   current=selected.map(c=>({...c,revealed:false}));
   readingTopic.textContent=topicTitles[topic];
   readingQuestionText.textContent=questionText;
   renderSpread();
-  detail.innerHTML='<h3>牌卡解析</h3><p>請依序翻開三張牌，再點選任一張牌查看中文解讀。</p>';
+  detail.innerHTML='<h3>牌卡解析</h3><p>請依序翻開四張牌，再點選任一張牌查看中文解讀。</p>';
   readingAnalysis.classList.add('hidden');
-  revealPrompt.textContent='依序翻開三張牌，完整解析會在全部翻開後出現。';
+  revealPrompt.textContent='依序翻開四張牌，完整解析會在全部翻開後出現。';
   show('reading');
 }
 
 function renderSpread(){
-  const subtitles=['WHAT YOU CARRY','WHAT IS HERE','WHAT MAY UNFOLD'];
+  const subtitles=['YOUR ENERGY','THEIR ENERGY','WHAT EXISTS BETWEEN YOU','WHAT HELPS MOST'];
   spread.innerHTML=current.map((c,i)=>`<div class="slot"><button class="card ${c.revealed?'revealed':''}" data-i="${i}" aria-label="Reveal ${positions[i]} card"><span class="card-inner"><span class="card-face card-back"></span><span class="card-face card-front ${c.orientation==='reversed'?'reversed':''}"><img src="${c.image}" alt="${c.en}"></span></span></button><h4>${positions[i]}</h4><small>${subtitles[i]}</small></div>`).join('');
   spread.querySelectorAll('.card').forEach(el=>el.addEventListener('click',()=>turnCard(Number(el.dataset.i))));
 }
@@ -326,19 +326,19 @@ function isUp(c){return c.orientation==='upright';}
 
 function orientationPattern(){
   const ups=current.filter(isUp).length;
-  if(ups===3)return '三張皆為正位，代表目前的能量較順，事情具備往前發展的條件；重點是把可用的資源真正落實。';
-  if(ups===0)return '三張皆為逆位，顯示這次問題較偏向內在阻礙、延遲或反覆模式。比起急著求結果，更適合先處理卡住的核心。';
-  if(!isUp(current[0])&&isUp(current[1])&&isUp(current[2]))return '牌勢由逆轉正，代表過去的阻力正在鬆動，現在開始出現比較能掌握的空間。';
-  if(isUp(current[0])&&isUp(current[1])&&!isUp(current[2]))return '前兩張能量較順，但未來牌逆位，像是提前提醒：若目前模式不調整，後面可能出現阻力。';
-  return ups===2?'兩張正位、一張逆位，整體仍有可運用的力量，但有一個關鍵環節需要特別調整。':'只有一張正位，這張牌就是目前最值得抓住的資源，其餘部分宜先整理再推進。';
+  if(ups===4)return '四張皆為正位，代表雙方與關係現況目前較有可運用的空間，重點是把好感、溝通與行動真正對上。';
+  if(ups===0)return '四張皆為逆位，顯示這段關係目前容易卡在誤解、壓力或彼此不同步。比起急著定義結果，更適合先處理互動本身。';
+  if(ups===3)return '三正一逆，整體仍偏順，但那張逆位就是這段關係最需要處理的卡點。';
+  if(ups===2)return '兩正兩逆，代表有吸引或可行空間，也有明顯阻力；這不是沒有答案，而是雙方節奏還沒完全對上。';
+  return '只有一張正位，表示目前可用的突破口很集中。先抓住那個最清楚的資源，不要一次硬推整段關係。';
 }
 
 function majorPattern(){
   const majors=current.filter(c=>c.arcana==='major').length;
-  if(majors===3)return '三張都是大阿爾克那，代表這次問題牽涉的不是短暫情緒，而是較大的價值、方向或人生階段轉換。';
-  if(majors===2)return '出現兩張大阿爾克那，表示這次選擇的影響可能比表面事件更深，值得把長期後果一起考量。';
-  if(majors===1)return '其中一張大阿爾克那是整組牌的主軸，尤其要留意它落在過去、現在或未來哪個位置。';
-  return '三張皆為小阿爾克那，焦點偏向日常互動、實際選擇與可調整的行動，變動空間相對較大。';
+  if(majors>=3)return `四張中有${majors}張大阿爾克那，這段互動牽涉的主題較深，可能不只是短暫情緒，而是價值、界線或人生階段的碰撞。`;
+  if(majors===2)return '出現兩張大阿爾克那，表示這段關係對雙方都有一定份量，值得看長期模式，不只看眼前感受。';
+  if(majors===1)return '其中一張大阿爾克那是這組牌的主軸，尤其要看它落在「我、對方、關係現況、建議」哪個位置。';
+  return '四張皆為小阿爾克那，焦點偏向日常互動與可調整的行為，代表變動空間其實不小。';
 }
 
 function suitPattern(){
@@ -352,7 +352,7 @@ function suitPattern(){
     '寶劍':'寶劍強調思考、溝通、衝突與判斷',
     '星幣':'星幣強調現實條件、資源、穩定與長期成果'
   };
-  if(e[0][1]>=2)return `${e[0][1]===3?'三張':'兩張'}同屬${e[0][0]}，因此「${map[e[0][0]]}」會是這次解讀的主要脈絡。`;
+  if(e[0][1]>=2)return `${e[0][1]===4?'四張':e[0][1]===3?'三張':'兩張'}同屬${e[0][0]}，因此「${map[e[0][0]]}」會是這次解讀的主要脈絡。`;
   if(e.length>=2)return `這組牌同時混合${e[0][0]}與${e[1][0]}的能量，表示不能只看單一面向，需要在不同需求之間取得平衡。`;
   return '';
 }
@@ -384,85 +384,106 @@ function pairTransition(a,b,label){
   return `${label}：${a.zh}（${orientationLabel(a)}）的「${coreMeaning(a)}」${relation}${b.zh}（${orientationLabel(b)}）的「${coreMeaning(b)}」。`;
 }
 
-function topicConclusion(){
-  const p=isUp(current[1]), f=isUp(current[2]);
-  const key=(p?'p':'n')+(f?'p':'n');
-  const base={
-    love:{pp:'目前關係中有可運用的情感能量，未來仍有發展空間。重點是觀察投入、誠實與回應是否雙向。',pn:'現在看起來仍有可行之處，但未來牌出現阻力。界線、期待與溝通需要先處理，否則吸引力容易變成消耗。',np:'現在仍卡住，但未來開始打開。只要核心問題能被說清楚、行為也跟著改變，發展仍有空間。',nn:'現在與未來都偏阻滯。與其問「怎麼讓它發生」，更值得問「這段互動是否真的符合我的需要與界線」。'},
-    career:{pp:'現在有可用資源，未來也具備前進條件。把方向化成具體成果，並確認時間、能力與資源能否承接。',pn:'目前可能看得到機會，但未來有瓶頸。條件、時機、合作方式或執行策略需要重新設計。',np:'現在雖然困難，但未來有打開的跡象。先處理最關鍵的瓶頸，比同時解決所有問題更有效。',nn:'現在與未來都偏阻力，這比較像一次策略重整：先重新評估路線、成本與條件，再決定是否繼續加力。'},
-    money:{pp:'財務方向較可控，但仍要以現金流、風險與可承受範圍驗證。正位並不等於保證獲利。',pn:'目前資源看似可用，但未來有風險訊號。先確認成本、期限、合約與退出條件。',np:'目前壓力有機會改善，但順序應該是先修補、再擴張。先穩定責任與漏洞，再承擔新風險。',nn:'現在與未來都偏保守訊號。減少不必要曝險、保留流動性，等數字更清楚後再做選擇。'},
-    general:{pp:'現在與未來具有連續性，你已經握有可用資源，穩定執行比頻繁換方向更重要。',pn:'現在能推進，但未來有阻力。越早加入風險管理，越能避免問題累積。',np:'現在卡住，但未來有打開的可能。把當前障礙視為流程問題，而不是最終答案。',nn:'現在與未來都要求簡化。先降低雜訊、重新排序優先順序，再決定下一步。'}
-  };
-  return base[topic][key];
+function relationshipConclusion(){
+  const [me,them,dynamic,advice]=current;
+  const meTone=isUp(me)?'你這邊的能量相對比較直接、願意面對':'你這邊可能有保留、猶豫或內耗';
+  const themTone=isUp(them)?'對方目前的能量較願意回應或保持開放':'對方目前比較容易保留、拉開距離或有自己的卡點';
+  const dynamicTone=isUp(dynamic)?`關係現況的「${dynamic.zh}」正位表示互動裡仍有可被看見、可被推進的部分`:`關係現況的「${dynamic.zh}」逆位提醒，現在最重要的不是硬推結果，而是先看清楚失衡或誤解在哪裡`;
+  const adviceTone=isUp(advice)?`建議牌「${advice.zh}」正位比較像一句明確提示：採取它最健康、最成熟的做法`:`建議牌「${advice.zh}」逆位是在提醒你別用力過頭，先修正舊模式，再決定是否推進`;
+  return `${meTone}；${themTone}。${dynamicTone}。${adviceTone}。`;
 }
 
 function adviceSteps(){
-  const pools={
-    love:[
-      ['先看對方的行為，不要只看自己腦內小劇場。穩定、主動、願意靠近，比一句晚安還更有參考價值。','如果你想推進，丟一個輕鬆但清楚的小球出去，例如一句邀約或一個明確問題，看看對方到底是接球還是裝沒看到。','如果互動一直讓你心很忙、人很累，那宇宙不是叫你更努力，是叫你先把界線拉回來。'],
-      ['把「我希望他是這樣想」和「他實際上真的這樣做」分開。幻想可以浪漫，但判斷還是要看證據。','安排一次誠實但不逼供的對話，確認彼此到底在同一頁，還是只是在同一本書的不同章節。','如果答案還是模糊，就別急著腦補大結局，讓時間和行動來揭曉。'],
-      ['不要只問有沒有火花，也要問這火花是營火還是廚房失火。','把你的底線和需求寫清楚，避免又愛又暈最後只剩自己在加班。','先追求互相、穩定、可持續，別把暈船當成航海技術。']
-    ],
-    career:[
-      ['把現在牌意轉成七天內能完成的一個動作：投遞、談條件、完成作品或精進技能。靈感如果不落地，最後只會住在待辦清單裡。','找出最卡的瓶頸，只修正最影響結果的那一項。別一次救整個宇宙，先救最會漏水的地方。','用真實回饋決定下一步，不要一直靠腦內模擬面試過人生。'],
-      ['把時間、收入、成長和可持續性列成一張表。夢想很好，但 Excel 有時候才是真正的大祭司。','先確認你現在最需要的是曝光、穩定、學習還是現金流，不要什麼都想要，最後只拿到焦慮。','做決定時讓現實條件與長期方向一起上桌，別讓其中一個偷跑。'],
-      ['如果局勢混亂，先縮小目標，不必一次重開機整個人生系統。','先完成一個最小可行行動，再從結果修正策略。與其想得完美，不如先讓事情開始動。','把焦慮轉成節奏：今天做什麼、這週完成什麼、下週檢查什麼。焦慮不會幫你打卡，但節奏會。']
-    ],
-    money:[
-      ['先做一張數字表：現金、固定支出、負債、預備金與可承受損失。你不一定要變有錢，但至少不要先變看不懂自己的帳。','先保護現金流，再考慮新的投入或擴張。沒有氧氣罩，就先不要討論飛多高。','任何高風險決定都先設定上限與退出條件，別把勇敢和衝動搞成雙胞胎。'],
-      ['把「我想要」和「我真的付得起」分開。購物車不是願望池，投資也不是許願樹。','若涉及投資、合夥或大額消費，先確認最壞情況是否承受得住，別讓未來的你來幫現在的你擦屁股。','穩住基本盤後，再追求成長或報酬，先求不翻船，再談開香檳。'],
-      ['如果你正感到壓力，先止漏而不是硬撐。財務不是比誰最會憋氣。','減少不必要曝險，保留彈性與流動性。手上有空間，比嘴上說沒事更有用。','等資訊更清楚，再做更大的承諾，別讓衝動搶先簽約。']
-    ],
-    general:[
-      ['把三張牌當成行動順序：停止重複的舊模式、使用現在可用的資源、朝未來較健康的方向走。簡單說，別再繞原路。','先做一個小步驟，不用一次解決全部。宇宙給的是路標，不是叫你今晚寫完人生論文。','觀察真實回饋，再決定下一步。比起猜十次，不如先走一步。'],
-      ['問自己：我現在真正能影響的是什麼？先抓得到球的那顆，不要一直盯著天上那顆流星。','把注意力從失控部分移回可行動部分，焦點對了，心就不會一直亂跑。','一旦方向開始清楚，就穩定執行，不必每隔三分鐘就重新懷疑宇宙。'],
-      ['如果你感到卡住，先簡化環境與選項。不是每個岔路都值得你現在就衝進去。','把優先順序排出來，一次處理一件事。多工有時候只是好聽版的手忙腳亂。','用可驗證的結果替代過度腦補與猜測，讓生活少一點靈異故事，多一點進度條。']
-    ]
-  };
-  const steps=chooseVariant(pools[topic],17).slice();
-  const present=current[1];
-  steps.push(isUp(present)?`補一句重點：現在位置的「${present.zh}」就是你手上的王牌，今天就把它用在一件最具體的小事上。`:`補一句重點：現在位置的「${present.zh}」逆位像是在拍你肩膀說「先別衝」，先把這個卡點處理好，再談加速。`);
-  return steps.slice(0,3);
+  const advice=current[3];
+  const base=[
+    `先看對方實際怎麼做，不要只聽腦內小劇場開會。關係不是猜謎節目，行為才是比較可靠的字幕。`,
+    `把「我想要的答案」和「現在真的發生什麼」分開。喜歡可以浪漫，判斷還是要帶一點現實感。`,
+    `給這段關係一個小而清楚的測試，例如一次邀約、一個明確問題或一點點主動。看對方是接球、回球，還是直接把球踢去隔壁棚。`
+  ];
+  const cardSpecific=isUp(advice)?`最後，建議牌是「${advice.zh}」正位：把它最健康的特質拿來用，今天就做一件對應的小事。`:`最後，建議牌是「${advice.zh}」逆位：先別急著衝，先把它提醒的卡點處理掉，不然很容易努力半天只是在原地踩飛輪。`;
+  return [base[(cardSeed()+1)%base.length],base[(cardSeed()+3)%base.length],cardSpecific];
 }
 function buildAdviceIntro(){
-  return `建議你把這組牌當成宇宙的半吐槽、半提醒：不是叫你躺平等奇蹟，而是要你用比較聰明、比較有節奏的方式前進。先做能做的那一步，別讓腦內小劇場搶走主導權。`;
+  return `這組牌比較像一位嘴巴有點壞但其實很關心你的朋友：它不替你決定關係要不要繼續，但會提醒你別只看感覺，要看雙方有沒有真的在同一條線上。`;
 }
 
 function buildAnalysis(){
-  const [past,present,future]=current;
-  const opening=chooseVariant([
-    `這組${topicZH[topic]}牌比較適合當成一條連續故事來讀，而不是三個彼此獨立的答案。`,
-    `重點在於變化：過去形成了什麼、現在要求你看見什麼，以及如果目前模式延續，未來可能走向哪裡。`,
-    `這三張牌的訊息藏在前後關係裡。比起單看一張牌，更重要的是能量如何從過去流向現在，再走向未來。`
-  ]);
-  const flow=` 過去是「${past.zh}」${orientationLabel(past)}：${coreMeaning(past)}；現在是「${present.zh}」${orientationLabel(present)}：${coreMeaning(present)}；未來是「${future.zh}」${orientationLabel(future)}：${coreMeaning(future)}。`;
-  const questionFrame=questionText?`針對你寫下的問題「${questionText}」，這組牌會更著重在你真正想確認的核心，而不是泛泛地看運勢。 `:'';
-  const overall=`${questionFrame}${opening}${flow} ${orientationPattern()} ${majorPattern()}`;
-  const connections=[pairTransition(past,present,'過去 → 現在'),pairTransition(present,future,'現在 → 未來'),suitPattern(),...specialConnections()].filter(Boolean).join(' ');
-  const futureFrame=isUp(future)?`未來位置的「${future.zh}」描述的是目前模式繼續下去時的一種可能方向，它仍需要真實選擇與行動才會變得具體。`:`未來位置的「${future.zh}」逆位比較適合視為需要調整或避免的模式，而不是一定會發生的預言。`;
-  const conclusion=`${topicConclusion()} ${futureFrame}`;
+  const [me,them,dynamic,advice]=current;
+  const questionFrame=questionText?`針對你寫下的問題「${questionText}」，`:'這次牌陣中，';
+  const overall=`${questionFrame}第一張「${me.zh}」${orientationLabel(me)}代表你目前帶進這段關係的狀態；第二張「${them.zh}」${orientationLabel(them)}反映對方在這段互動中的能量；第三張「${dynamic.zh}」${orientationLabel(dynamic)}描述你們目前真正存在的互動模式；第四張「${advice.zh}」${orientationLabel(advice)}則是這次最值得帶走的提醒。 ${orientationPattern()} ${majorPattern()}`;
+  const connections=[
+    pairTransition(me,them,'我 ↔ 對方'),
+    `關係現況：${dynamic.zh}（${orientationLabel(dynamic)}）的核心是「${coreMeaning(dynamic)}」。`,
+    `建議方向：${advice.zh}（${orientationLabel(advice)}）把重點放在「${coreMeaning(advice)}」。`,
+    suitPattern(),
+    ...specialConnections()
+  ].filter(Boolean).join(' ');
+  const conclusion=relationshipConclusion();
   return {overall,connections,conclusion,advice:buildAdviceIntro()};
 }
 
 function openChatGPTReading(){
-  if(current.length!==3)return;
+  if(current.length!==4)return;
   const cardLines=current.map((c,i)=>`${positionZH[i]}：${c.zh}（${c.en}）${orientationLabel(c)}`).join('；');
-  const prompt=`請用繁體中文深入解讀我的三張塔羅牌。主題：${topicZH[topic]}。我的問題是：「${questionText}」。牌陣是過去／現在／未來。${cardLines}。請分析三張牌彼此的連動、正逆位的影響、時間線的轉折、可能的核心問題與具體行動建議；不要把塔羅當成必然預言，請把它當作反思與決策參考。`;
+  const prompt=`請用繁體中文深入解讀我的四張關係塔羅牌。我的問題是：「${questionText}」。牌陣位置依序是：我／對方／關係現況／建議。${cardLines}。請分析雙方能量差異、目前互動核心、正逆位的影響、可能的關係盲點，以及具體但不武斷的行動建議。語氣可以自然、帶一點幽默，但不要把塔羅當成必然預言。`;
   const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
   window.open(url,'_blank','noopener,noreferrer');
 }
 
+function loadImg(src){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>resolve(img);
+    img.onerror=()=>reject(new Error(`Image load failed: ${src}`));
+    img.src=src;
+  });
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  const rr=Math.min(r,w/2,h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr,y);
+  ctx.arcTo(x+w,y,x+w,y+h,rr);
+  ctx.arcTo(x+w,y+h,x,y+h,rr);
+  ctx.arcTo(x,y+h,x,y,rr);
+  ctx.arcTo(x,y,x+w,y,rr);
+  ctx.closePath();
+}
+
+function wrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
+  const content=String(text||'');
+  const chars=[...content];
+  let line='';
+  const lines=[];
+  for(let i=0;i<chars.length;i++){
+    const test=line+chars[i];
+    if(ctx.measureText(test).width>maxWidth && line){
+      lines.push(line);
+      line=chars[i];
+      if(maxLines && lines.length>=maxLines-1){
+        const rest=chars.slice(i+1).join('');
+        if(rest) line=line+'…';
+        break;
+      }
+    }else{
+      line=test;
+    }
+  }
+  if(line && (!maxLines || lines.length<maxLines)) lines.push(line);
+  lines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*lineHeight));
+  return y+Math.max(1,lines.length)*lineHeight;
+}
 
 function buildShareCaption(){
   const cardLines=current.map((c,i)=>`${positionZH[i]}｜${c.zh} ${orientationLabel(c)}`).join('\n');
   const summary=$('conclusionText').textContent || buildAnalysis().conclusion;
   const steps=adviceSteps();
-  return `River Tarot 三張牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
+  return `River Tarot 四張關係牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
 }
 
 async function generateShareImage(showStatusMsg=false){
-  if(current.length!==3 || !current.every(c=>c.revealed)){
-    if(showStatusMsg) $('shareStatus').textContent='請先翻開三張牌，再分享。';
+  if(current.length!==4 || !current.every(c=>c.revealed)){
+    if(showStatusMsg) $('shareStatus').textContent='請先翻開四張牌，再分享。';
     return null;
   }
   if(showStatusMsg) $('shareStatus').textContent='正在準備分享圖…';
@@ -478,7 +499,7 @@ async function generateShareImage(showStatusMsg=false){
   ctx.fillStyle='#efe7ff'; ctx.font='bold 58px Georgia, serif'; ctx.textAlign='left';
   ctx.fillText('RIVER TAROT',74,96);
   ctx.fillStyle='#cbb7ea'; ctx.font='28px Courier New, monospace';
-  ctx.fillText(`三張牌解讀  ·  ${topicZH[topic]}`,76,142);
+  ctx.fillText(`四張關係牌陣  ·  ${topicZH[topic]}`,76,142);
   ctx.fillStyle='#e7d9ee'; ctx.font='23px sans-serif';
   wrapText(ctx,`問題：${questionText}`,76,178,900,30,2);
   ctx.fillStyle='#dcd2ef'; ctx.font='22px serif';
@@ -486,12 +507,12 @@ async function generateShareImage(showStatusMsg=false){
 
   const imgs=[];
   for(const c of current){ imgs.push(await loadImg(c.image)); }
-  const cardW=240, cardH=360, topY=235, xs=[110,420,730];
+  const cardW=190, cardH=285, topY=235, xs=[70,325,580,835];
   imgs.forEach((img,i)=>{
     const x=xs[i], y=topY+(i===1?0:18);
     ctx.save();
     ctx.translate(x+cardW/2,y+cardH/2);
-    ctx.rotate(i===0?-0.08:i===2?0.08:0);
+    ctx.rotate(i===0?-0.055:i===3?0.055:0);
     if(current[i].orientation==='reversed') ctx.rotate(Math.PI);
     ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18;
     ctx.fillStyle='#e8d7b8'; roundRect(ctx,-cardW/2,-cardH/2,cardW,cardH,12); ctx.fill();
@@ -504,18 +525,18 @@ async function generateShareImage(showStatusMsg=false){
   });
 
   ctx.textAlign='left';
-  ctx.fillStyle='rgba(10,12,22,.64)'; roundRect(ctx,64,745,952,430,18); ctx.fill();
+  ctx.fillStyle='rgba(10,12,22,.64)'; roundRect(ctx,64,690,952,485,18); ctx.fill();
   ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('結論',86,787);
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('結論',86,732);
   ctx.fillStyle='#f2edf9'; ctx.font='23px sans-serif';
-  let y=wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),86,827,905,34,4);
+  let y=wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),86,772,905,34,4);
   ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('行動建議',86,y+26);
   ctx.fillStyle='#f2edf9'; ctx.font='22px sans-serif';
   const steps=adviceSteps();
   steps.forEach((t,idx)=>{y=wrapText(ctx,`${idx+1}. ${t}`,92,y+68,890,31,3);y+=8;});
   ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New, monospace';
   ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
-  ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.6 · UPDATE 06',W-270,H-68);
+  ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.8 · UPDATE 08',W-270,H-68);
 
   let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
   if(!blob){
@@ -553,8 +574,8 @@ function downloadShareAsset(asset){
 }
 
 async function shareReading(){
-  if(current.length!==3 || !current.every(c=>c.revealed)){
-    $('shareStatus').textContent='請先翻開三張牌，再分享。';
+  if(current.length!==4 || !current.every(c=>c.revealed)){
+    $('shareStatus').textContent='請先翻開四張牌，再分享。';
     return;
   }
   const button=$('shareReadingBtn');
@@ -598,7 +619,7 @@ async function shareReading(){
 }
 
 function renderAnalysis(){
-  $('revealPrompt').textContent='三張牌已全部翻開，以下為完整中文解析。';
+  $('revealPrompt').textContent='四張牌已全部翻開，以下為完整中文解析。';
   const r=buildAnalysis();
   $('analysisText').textContent=r.overall;
   $('comboText').textContent=r.connections;

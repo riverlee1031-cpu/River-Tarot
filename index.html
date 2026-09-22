@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090b12">
-<title>RIVER TAROT v1.6</title>
+<title>RIVER TAROT v1.8</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,7 +32,7 @@
 
     <main class="main-content">
       <section class="brand-block">
-        <h1>RIVER TAROT <small>v1.6</small></h1>
+        <h1>RIVER TAROT <small>v1.8</small></h1>
         <p class="subbrand">A 78-CARD RETRO TAROT EXPERIENCE</p>
         <p class="mystic-cn">在靜謐與直覺之間，讓牌替你照見尚未說出口的答案。</p>
         <p class="micro-line">ONE QUESTION. A DIFFERENT TOMORROW.</p>
@@ -87,19 +87,20 @@
         </div>
 
         <section class="spread-panel">
-          <div class="spread-heading"><strong>CHOOSE THREE CARDS</strong><span>PAST · PRESENT · FUTURE</span></div>
-          <p class="spread-note">Let your eyes move first. Pick the three cards that pull your attention before you begin to reason.</p>
+          <div class="spread-heading"><strong>CHOOSE FOUR CARDS</strong><span>ME · THEM · CURRENT DYNAMIC · ADVICE</span></div>
+          <p class="spread-note">Let your eyes move first. Pick four cards by instinct. Let each one speak from a different place in the relationship.</p>
           <div class="spread-stage">
             <div id="shuffleMessage" class="shuffle-message" aria-live="polite">SHUFFLING THE DECK…</div>
             <div id="chooseGallery" class="choose-gallery fan-spread" aria-label="Face-down tarot spread"></div>
           </div>
         </section>
 
-        <div class="pick-progress"><span id="chooseCounter">0 / 3 SELECTED</span><span id="chooseHint">Choose the card that calls to you first.</span></div>
+        <div class="pick-progress"><span id="chooseCounter">0 / 4 SELECTED</span><span id="chooseHint">Choose the card that calls to you first.</span></div>
         <div class="choose-slots" id="chooseSlots">
-          <div class="choose-slot" data-slot="0"><span>PAST</span><small>FIRST CARD</small></div>
-          <div class="choose-slot" data-slot="1"><span>PRESENT</span><small>SECOND CARD</small></div>
-          <div class="choose-slot" data-slot="2"><span>FUTURE</span><small>THIRD CARD</small></div>
+          <div class="choose-slot" data-slot="0"><span>ME</span><small>我</small></div>
+          <div class="choose-slot" data-slot="1"><span>THEM</span><small>對方</small></div>
+          <div class="choose-slot" data-slot="2"><span>CURRENT DYNAMIC</span><small>關係現況</small></div>
+          <div class="choose-slot" data-slot="3"><span>ADVICE</span><small>建議</small></div>
         </div>
         <div class="choose-actions">
           <button id="chooseClearBtn" class="secondary-btn" type="button">↺ RESHUFFLE</button>
@@ -110,7 +111,7 @@
 
       <section id="reading" class="view">
         <div class="reading-topline">
-          <div><span class="eyebrow">YOUR THREE-CARD READING</span><h2 id="readingTopic">LOVE</h2><p id="readingQuestionText" class="user-question"></p></div>
+          <div><span class="eyebrow">YOUR FOUR-CARD RELATIONSHIP READING</span><h2 id="readingTopic">LOVE</h2><p id="readingQuestionText" class="user-question"></p></div>
           <button id="newQuestionBtn" class="utility-btn" type="button">NEW QUESTION →</button>
         </div>
 
@@ -154,7 +155,7 @@
       <a href="https://www.instagram.com/riverboxing/" target="_blank" rel="noreferrer" title="Instagram">▣</a>
       <span class="footer-url">riverlee1031-cpu.github.io/River-Tarot</span>
     </div>
-    <div class="footer-meta"><span class="credit-line">CREDIT BY RIVER</span><span class="update-link">v1.6 · UPDATE 06</span></div>
+    <div class="footer-meta"><span class="credit-line">CREDIT BY RIVER</span><span class="update-link">v1.8 · UPDATE 08</span></div>
     <div class="clockbox"><span>▥　♪</span><span id="clock"></span></div>
   </footer>
 </div>
