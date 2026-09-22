@@ -152,8 +152,7 @@ function bindUI(){
   chooseClearBtn.addEventListener('click',()=>openSpread(true));
   chooseRevealBtn.addEventListener('click',revealReading);
   askChatGPTBtn.addEventListener('click',openChatGPTReading);
-  shareImageBtn.addEventListener('click',async()=>{await generateShareImage(true);});
-  shareIGBtn.addEventListener('click',shareToInstagram);
+  shareReadingBtn.addEventListener('click',shareReading);
   chooseAgainBtn.addEventListener('click',()=>openSpread(true));
 }
 
@@ -378,33 +377,33 @@ function topicConclusion(){
 function adviceSteps(){
   const pools={
     love:[
-      ['先看行為，不只看感覺。觀察對方的回應是否穩定、主動且一致。','若你想推進，提出一個低壓、清楚的小邀請，讓關係進入可觀察的回應。','若互動反覆消耗你，先收回注意力，保護界線，再決定是否繼續投入。'],
-      ['把「你希望對方怎麼想」和「對方實際怎麼做」分開。','安排一次誠實但不逼迫的對話，確認彼此期待是否一致。','如果答案仍然模糊，就把時間拉長一點，讓對方用行動而不是嘴巴證明。'],
-      ['不要只問有沒有火花，也要問這段關係是否健康。','把你的底線與需要寫出來，避免被情緒牽著走。','先追求互相、穩定、可持續，再決定是否更深投入。']
+      ['先看對方的行為，不要只看自己腦內小劇場。穩定、主動、願意靠近，比一句晚安還更有參考價值。','如果你想推進，丟一個輕鬆但清楚的小球出去，例如一句邀約或一個明確問題，看看對方到底是接球還是裝沒看到。','如果互動一直讓你心很忙、人很累，那宇宙不是叫你更努力，是叫你先把界線拉回來。'],
+      ['把「我希望他是這樣想」和「他實際上真的這樣做」分開。幻想可以浪漫，但判斷還是要看證據。','安排一次誠實但不逼供的對話，確認彼此到底在同一頁，還是只是在同一本書的不同章節。','如果答案還是模糊，就別急著腦補大結局，讓時間和行動來揭曉。'],
+      ['不要只問有沒有火花，也要問這火花是營火還是廚房失火。','把你的底線和需求寫清楚，避免又愛又暈最後只剩自己在加班。','先追求互相、穩定、可持續，別把暈船當成航海技術。']
     ],
     career:[
-      ['把現在牌意轉成七天內能完成的一個動作，例如投遞、談條件、完成作品或練技能。','找出最卡的瓶頸，只修正最影響結果的那一項。','用實際回饋判斷是否繼續，不要只停留在想像中的可能性。'],
-      ['把時間、收入、成長與可持續性列成一張表。','先確認你當下最需要的是曝光、穩定、學習，還是現金流。','做決定時讓現實條件與長期方向同時進場。'],
-      ['如果局勢混亂，先縮小目標，不必一次全改。','先完成一個最小可行行動，再從結果修正策略。','把焦慮轉成節奏：今天做什麼、這週完成什麼、下週檢查什麼。']
+      ['把現在牌意轉成七天內能完成的一個動作：投遞、談條件、完成作品或精進技能。靈感如果不落地，最後只會住在待辦清單裡。','找出最卡的瓶頸，只修正最影響結果的那一項。別一次救整個宇宙，先救最會漏水的地方。','用真實回饋決定下一步，不要一直靠腦內模擬面試過人生。'],
+      ['把時間、收入、成長和可持續性列成一張表。夢想很好，但 Excel 有時候才是真正的大祭司。','先確認你現在最需要的是曝光、穩定、學習還是現金流，不要什麼都想要，最後只拿到焦慮。','做決定時讓現實條件與長期方向一起上桌，別讓其中一個偷跑。'],
+      ['如果局勢混亂，先縮小目標，不必一次重開機整個人生系統。','先完成一個最小可行行動，再從結果修正策略。與其想得完美，不如先讓事情開始動。','把焦慮轉成節奏：今天做什麼、這週完成什麼、下週檢查什麼。焦慮不會幫你打卡，但節奏會。']
     ],
     money:[
-      ['先做一張數字表：現金、固定支出、負債、預備金與可承受損失。','先保護現金流，再考慮新的投入或擴張。','任何高風險決定都先設定上限與退出條件。'],
-      ['把「想要」與「負擔得起」分開。','若涉及投資、合夥或大額消費，先確認最壞情況是否承受得住。','穩住基本盤後，再追求成長或報酬。'],
-      ['如果你正感到壓力，先止漏而不是硬撐。','減少不必要曝險，保留彈性與流動性。','等資訊更清楚，再做更大的承諾。']
+      ['先做一張數字表：現金、固定支出、負債、預備金與可承受損失。你不一定要變有錢，但至少不要先變看不懂自己的帳。','先保護現金流，再考慮新的投入或擴張。沒有氧氣罩，就先不要討論飛多高。','任何高風險決定都先設定上限與退出條件，別把勇敢和衝動搞成雙胞胎。'],
+      ['把「我想要」和「我真的付得起」分開。購物車不是願望池，投資也不是許願樹。','若涉及投資、合夥或大額消費，先確認最壞情況是否承受得住，別讓未來的你來幫現在的你擦屁股。','穩住基本盤後，再追求成長或報酬，先求不翻船，再談開香檳。'],
+      ['如果你正感到壓力，先止漏而不是硬撐。財務不是比誰最會憋氣。','減少不必要曝險，保留彈性與流動性。手上有空間，比嘴上說沒事更有用。','等資訊更清楚，再做更大的承諾，別讓衝動搶先簽約。']
     ],
     general:[
-      ['把三張牌當作行動順序：停止重複的舊模式、使用現在可用的資源、朝未來較健康的方向走。','先做一個小步驟，不用一次解決全部。','觀察真實回饋，再決定下一步。'],
-      ['問自己：我現在真正能影響的是什麼？','把注意力從失控部分移回可行動部分。','一旦方向開始清楚，就穩定執行，不必過度反覆。'],
-      ['如果你感到卡住，先簡化環境與選項。','把優先順序排出來，一次處理一件事。','用可驗證的結果替代過度腦補與猜測。']
+      ['把三張牌當成行動順序：停止重複的舊模式、使用現在可用的資源、朝未來較健康的方向走。簡單說，別再繞原路。','先做一個小步驟，不用一次解決全部。宇宙給的是路標，不是叫你今晚寫完人生論文。','觀察真實回饋，再決定下一步。比起猜十次，不如先走一步。'],
+      ['問自己：我現在真正能影響的是什麼？先抓得到球的那顆，不要一直盯著天上那顆流星。','把注意力從失控部分移回可行動部分，焦點對了，心就不會一直亂跑。','一旦方向開始清楚，就穩定執行，不必每隔三分鐘就重新懷疑宇宙。'],
+      ['如果你感到卡住，先簡化環境與選項。不是每個岔路都值得你現在就衝進去。','把優先順序排出來，一次處理一件事。多工有時候只是好聽版的手忙腳亂。','用可驗證的結果替代過度腦補與猜測，讓生活少一點靈異故事，多一點進度條。']
     ]
   };
   const steps=chooseVariant(pools[topic],17).slice();
   const present=current[1];
-  steps.push(isUp(present)?`把現在位置「${present.zh}」最健康的特質落實到今天就能做的一個具體行動。`:`先處理現在位置「${present.zh}」逆位所指出的卡點，再談加速或推進。`);
+  steps.push(isUp(present)?`補一句重點：現在位置的「${present.zh}」就是你手上的王牌，今天就把它用在一件最具體的小事上。`:`補一句重點：現在位置的「${present.zh}」逆位像是在拍你肩膀說「先別衝」，先把這個卡點處理好，再談加速。`);
   return steps.slice(0,3);
 }
 function adviceText(){
-  return `你現在最需要的不是更多猜測，而是把牌組的提醒轉成可執行的小步驟。先從一個最實際、最可驗證的行動開始，讓答案透過行動浮現。`;
+  return `建議你把這組牌當成宇宙的半吐槽、半提醒：不是叫你躺平等奇蹟，而是要你用比較聰明、比較有節奏的方式前進。先做能做的那一步，別讓腦內小劇場搶走主導權。`;
 }
 
 function buildAnalysis(){
@@ -440,7 +439,7 @@ function buildShareCaption(){
 
 async function generateShareImage(showStatusMsg=false){
   if(current.length!==3 || !current.every(c=>c.revealed)){
-    if(showStatusMsg) shareStatus.textContent='請先翻開三張牌，再生成分享圖。';
+    if(showStatusMsg) shareStatus.textContent='請先翻開三張牌，再分享。';
     return null;
   }
   if(showStatusMsg) shareStatus.textContent='正在生成分享圖…';
@@ -476,37 +475,59 @@ async function generateShareImage(showStatusMsg=false){
   ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('結論',86,742);
   ctx.fillStyle='#f2edf9'; ctx.font='24px "Microsoft JhengHei"';
   let y=wrapText(ctx,(conclusionText.textContent || buildAnalysis().conclusion),86,782,905,36,4);
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('行動建議',86,y+20);
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('建議',86,y+20);
   ctx.fillStyle='#f2edf9'; ctx.font='23px "Microsoft JhengHei"';
   const steps=adviceSteps();
   steps.forEach((t,idx)=>{ y=wrapText(ctx,`${idx+1}. ${t}`,92,y+62,890,32,2); y+=10; });
   ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New'; ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
-  ctx.fillStyle='#c3a5ea'; ctx.font='20px Courier New'; ctx.fillText('v1.2 · UPDATE 02',W-270,H-68);
+  ctx.fillStyle='#c3a5ea'; ctx.font='20px Courier New'; ctx.fillText('v1.3 · UPDATE 03',W-270,H-68);
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
   const file=new File([blob],`river-tarot-${Date.now()}.png`,{type:'image/png'});
+  if(window.__riverShareUrl) URL.revokeObjectURL(window.__riverShareUrl);
   window.__riverShareFile=file;
   window.__riverShareUrl=URL.createObjectURL(blob);
-  if(showStatusMsg) shareStatus.textContent='分享圖已生成，可直接分享到 IG 或先下載。';
+  if(showStatusMsg) shareStatus.textContent='分享圖已生成，準備分享中…';
   return {blob,file,url:window.__riverShareUrl};
 }
 
-async function shareToInstagram(){
+function downloadShareAsset(asset){
+  const a=document.createElement('a');
+  a.href=asset.url;
+  a.download=asset.file?.name || `river-tarot-${Date.now()}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+async function shareReading(){
   if(current.length!==3 || !current.every(c=>c.revealed)){
     shareStatus.textContent='請先翻開三張牌，再分享。';
     return;
   }
-  const asset = window.__riverShareFile ? {file:window.__riverShareFile,url:window.__riverShareUrl} : await generateShareImage(false);
-  const text=buildShareCaption();
   try{
-    if(navigator.share && navigator.canShare && navigator.canShare({files:[asset.file]})){
-      await navigator.share({files:[asset.file],title:'River Tarot Reading',text});
-      shareStatus.textContent='已開啟分享視窗，若手機支援可直接選擇 Instagram。';
-      return;
+    const asset = await generateShareImage(true);
+    if(!asset) return;
+    const text=buildShareCaption();
+    if(navigator.share){
+      try{
+        if(!navigator.canShare || navigator.canShare({files:[asset.file]})){
+          await navigator.share({files:[asset.file],title:'River Tarot Reading',text});
+          shareStatus.textContent='已開啟分享視窗，你可以直接選 Instagram，或儲存圖片後再分享。';
+          return;
+        }
+      }catch(err){
+        if(err && err.name==='AbortError'){
+          shareStatus.textContent='你先取消了分享，沒關係，分享圖已幫你準備好。';
+        }
+      }
     }
-  }catch(err){/* fall through */}
-  const a=document.createElement('a'); a.href=asset.url; a.download=asset.file.name; a.click();
-  try{ await navigator.clipboard.writeText(text); shareStatus.textContent='已下載分享圖，並複製貼文文字。接著可手動上傳到 IG。'; }
-  catch(e){ shareStatus.textContent='已下載分享圖。IG 網頁無法保證直接帶圖發布，請手動上傳到 IG。'; }
+    downloadShareAsset(asset);
+    try{ if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(text); shareStatus.textContent='已自動下載分享圖，並複製貼文文字。可直接上傳到 IG。'; return; } }catch(e){}
+    shareStatus.textContent='已自動下載分享圖。若瀏覽器不能直接分享到 IG，請手動上傳即可。';
+  }catch(err){
+    console.error(err);
+    shareStatus.textContent='分享圖生成失敗，請重新整理後再試一次。';
+  }
 }
 
 function renderAnalysis(){

@@ -22,14 +22,14 @@
 
 
 /* v1.2 share image + stronger action advice */
-.reading-actions.five-actions{grid-template-columns:1fr 1.2fr 1.15fr 1fr 1fr}
+.reading-actions.four-actions{grid-template-columns:1fr 1.2fr 1.3fr 1fr}
 .share-btn{padding:16px;border:2px outset #b8a3c8;background:linear-gradient(#4f436d,#2f2847);color:#f4ebfb;font-family:"Courier New",monospace;font-weight:700;letter-spacing:1px;cursor:pointer}
 .share-btn.ig{background:linear-gradient(#7242a2,#492e73)}
 .share-status{margin-top:10px;color:#cfdccf;letter-spacing:1px}
 .analysis-box.advice ol{margin:10px 0 0 1.25em;padding:0}
 .analysis-box.advice li{margin:0 0 .55em 0;line-height:1.75}
 .analysis-box.advice .advice-intro{margin:0 0 .65em 0}
-@media(max-width:1100px){.reading-actions.five-actions{grid-template-columns:1fr 1fr}}
-@media(max-width:650px){.reading-actions.five-actions{grid-template-columns:1fr}}
+@media(max-width:1100px){.reading-actions.four-actions{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.reading-actions.four-actions{grid-template-columns:1fr}}
 
 .footer-meta{display:flex;align-items:center;gap:10px}.credit-line{background:#1f2538;color:#e8d9ef;border:2px outset #777;padding:8px 12px;white-space:nowrap;font-family:"Courier New",monospace;font-size:12px;letter-spacing:1px}@media(max-width:1050px){.footer-meta{gap:8px}.credit-line{padding:7px 10px;font-size:11px}}@media(max-width:650px){.credit-line{display:none}}
