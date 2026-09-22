@@ -20,3 +20,10 @@ Retro 90s / CRT three-card tarot web app.
 ## Update link
 The footer points to:
 https://github.com/riverlee1031-cpu/River-Tarot
+
+
+## v1.6 UPDATE 06
+- Fixed action advice rendering.
+- Pre-generates share image for more reliable iPhone Web Share / Instagram handoff.
+- Falls back to image download when direct share is unavailable.
+- Added dedicated mobile reading layout.

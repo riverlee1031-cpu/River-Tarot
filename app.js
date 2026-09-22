@@ -4,6 +4,10 @@ let shuffledDeck = [];
 let selected = [];
 let current = [];
 let shuffleTimer = null;
+let shareAssetPromise = null;
+let cachedShareAsset = null;
+
+const $ = (id)=>document.getElementById(id);
 let questionText = '';
 
 
@@ -420,7 +424,7 @@ function adviceSteps(){
   steps.push(isUp(present)?`補一句重點：現在位置的「${present.zh}」就是你手上的王牌，今天就把它用在一件最具體的小事上。`:`補一句重點：現在位置的「${present.zh}」逆位像是在拍你肩膀說「先別衝」，先把這個卡點處理好，再談加速。`);
   return steps.slice(0,3);
 }
-function adviceText(){
+function buildAdviceIntro(){
   return `建議你把這組牌當成宇宙的半吐槽、半提醒：不是叫你躺平等奇蹟，而是要你用比較聰明、比較有節奏的方式前進。先做能做的那一步，別讓腦內小劇場搶走主導權。`;
 }
 
@@ -437,7 +441,7 @@ function buildAnalysis(){
   const connections=[pairTransition(past,present,'過去 → 現在'),pairTransition(present,future,'現在 → 未來'),suitPattern(),...specialConnections()].filter(Boolean).join(' ');
   const futureFrame=isUp(future)?`未來位置的「${future.zh}」描述的是目前模式繼續下去時的一種可能方向，它仍需要真實選擇與行動才會變得具體。`:`未來位置的「${future.zh}」逆位比較適合視為需要調整或避免的模式，而不是一定會發生的預言。`;
   const conclusion=`${topicConclusion()} ${futureFrame}`;
-  return {overall,connections,conclusion,advice:adviceText()};
+  return {overall,connections,conclusion,advice:buildAdviceIntro()};
 }
 
 function openChatGPTReading(){
@@ -451,113 +455,157 @@ function openChatGPTReading(){
 
 function buildShareCaption(){
   const cardLines=current.map((c,i)=>`${positionZH[i]}｜${c.zh} ${orientationLabel(c)}`).join('\n');
-  const summary=conclusionText.textContent || buildAnalysis().conclusion;
+  const summary=$('conclusionText').textContent || buildAnalysis().conclusion;
   const steps=adviceSteps();
   return `River Tarot 三張牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
 }
 
 async function generateShareImage(showStatusMsg=false){
   if(current.length!==3 || !current.every(c=>c.revealed)){
-    if(showStatusMsg) shareStatus.textContent='請先翻開三張牌，再分享。';
+    if(showStatusMsg) $('shareStatus').textContent='請先翻開三張牌，再分享。';
     return null;
   }
-  if(showStatusMsg) shareStatus.textContent='正在生成分享圖…';
-  const canvas=document.getElementById('shareCanvas');
+  if(showStatusMsg) $('shareStatus').textContent='正在準備分享圖…';
+  const canvas=$('shareCanvas');
   const ctx=canvas.getContext('2d');
   const W=canvas.width,H=canvas.height;
   ctx.clearRect(0,0,W,H);
-  const bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#0b1020'); bg.addColorStop(.55,'#12152f'); bg.addColorStop(1,'#1b1031');
+  const bg=ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#0b1020'); bg.addColorStop(.55,'#12152f'); bg.addColorStop(1,'#1b1031');
   ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-  for(let i=0;i<90;i++){ctx.fillStyle=`rgba(220,200,255,${Math.random()*0.8})`; ctx.fillRect(Math.random()*W,Math.random()*H*.55,2,2)}
   ctx.strokeStyle='rgba(196,124,237,.55)'; ctx.lineWidth=4; ctx.strokeRect(22,22,W-44,H-44);
-  ctx.fillStyle='#efe7ff'; ctx.font='bold 58px Georgia'; ctx.fillText('RIVER TAROT',74,96);
-  ctx.fillStyle='#cbb7ea'; ctx.font='28px Courier New'; ctx.fillText(`三張牌解讀  ·  ${topicZH[topic]}`,76,142);
-  ctx.fillStyle='#e7d9ee'; ctx.font='23px \"Microsoft JhengHei\"'; wrapText(ctx,`問題：${questionText}`,76,178,900,30,2);
+
+  ctx.fillStyle='#efe7ff'; ctx.font='bold 58px Georgia, serif'; ctx.textAlign='left';
+  ctx.fillText('RIVER TAROT',74,96);
+  ctx.fillStyle='#cbb7ea'; ctx.font='28px Courier New, monospace';
+  ctx.fillText(`三張牌解讀  ·  ${topicZH[topic]}`,76,142);
+  ctx.fillStyle='#e7d9ee'; ctx.font='23px sans-serif';
+  wrapText(ctx,`問題：${questionText}`,76,178,900,30,2);
   ctx.fillStyle='#dcd2ef'; ctx.font='22px serif';
-  const dateStr=new Date().toLocaleDateString('zh-TW'); ctx.fillText(dateStr,W-220,96);
-  const imgs=await Promise.all(current.map(c=>loadImg(c.image)));
-  const cardW=240, cardH=360, topY=235; const xs=[110,420,730];
+  ctx.fillText(new Date().toLocaleDateString('zh-TW'),W-220,96);
+
+  const imgs=[];
+  for(const c of current){ imgs.push(await loadImg(c.image)); }
+  const cardW=240, cardH=360, topY=235, xs=[110,420,730];
   imgs.forEach((img,i)=>{
-    const x=xs[i], y=topY + (i===1?0:18);
+    const x=xs[i], y=topY+(i===1?0:18);
     ctx.save();
     ctx.translate(x+cardW/2,y+cardH/2);
-    const ang=i===0?-0.08:i===2?0.08:0;
-    ctx.rotate(ang);
+    ctx.rotate(i===0?-0.08:i===2?0.08:0);
     if(current[i].orientation==='reversed') ctx.rotate(Math.PI);
-    ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18; ctx.fillStyle='#e8d7b8'; roundRect(ctx,-cardW/2,-cardH/2,cardW,cardH,12); ctx.fill();
+    ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18;
+    ctx.fillStyle='#e8d7b8'; roundRect(ctx,-cardW/2,-cardH/2,cardW,cardH,12); ctx.fill();
     ctx.drawImage(img,-cardW/2+8,-cardH/2+8,cardW-16,cardH-16);
     ctx.restore();
-    ctx.fillStyle='#f3ebff'; ctx.font='bold 27px Courier New'; ctx.textAlign='center'; ctx.fillText(positionZH[i], x+cardW/2, topY+cardH+62);
-    ctx.fillStyle='#cfb3ff'; ctx.font='22px "Microsoft JhengHei"'; ctx.fillText(`${current[i].zh} ${orientationLabel(current[i])}`, x+cardW/2, topY+cardH+95);
+    ctx.fillStyle='#f3ebff'; ctx.font='bold 27px Courier New, monospace'; ctx.textAlign='center';
+    ctx.fillText(positionZH[i],x+cardW/2,topY+cardH+62);
+    ctx.fillStyle='#cfb3ff'; ctx.font='22px sans-serif';
+    ctx.fillText(`${current[i].zh} ${orientationLabel(current[i])}`,x+cardW/2,topY+cardH+95);
   });
+
   ctx.textAlign='left';
-  ctx.fillStyle='rgba(10,12,22,.55)'; roundRect(ctx,64,745,952,255,18); ctx.fill(); ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('結論',86,787);
-  ctx.fillStyle='#f2edf9'; ctx.font='24px "Microsoft JhengHei"';
-  let y=wrapText(ctx,(conclusionText.textContent || buildAnalysis().conclusion),86,827,905,36,4);
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('建議',86,y+20);
-  ctx.fillStyle='#f2edf9'; ctx.font='23px "Microsoft JhengHei"';
+  ctx.fillStyle='rgba(10,12,22,.64)'; roundRect(ctx,64,745,952,430,18); ctx.fill();
+  ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('結論',86,787);
+  ctx.fillStyle='#f2edf9'; ctx.font='23px sans-serif';
+  let y=wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),86,827,905,34,4);
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('行動建議',86,y+26);
+  ctx.fillStyle='#f2edf9'; ctx.font='22px sans-serif';
   const steps=adviceSteps();
-  steps.forEach((t,idx)=>{ y=wrapText(ctx,`${idx+1}. ${t}`,92,y+62,890,32,2); y+=10; });
-  ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New'; ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
-  ctx.fillStyle='#c3a5ea'; ctx.font='20px Courier New'; ctx.fillText('v1.3 · UPDATE 03',W-270,H-68);
-  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-  const file=new File([blob],`river-tarot-${Date.now()}.png`,{type:'image/png'});
+  steps.forEach((t,idx)=>{y=wrapText(ctx,`${idx+1}. ${t}`,92,y+68,890,31,3);y+=8;});
+  ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New, monospace';
+  ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
+  ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.6 · UPDATE 06',W-270,H-68);
+
+  let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
+  if(!blob){
+    const dataUrl=canvas.toDataURL('image/png');
+    const res=await fetch(dataUrl);
+    blob=await res.blob();
+  }
+  const filename=`river-tarot-${Date.now()}.png`;
+  let file=null;
+  try{ file=new File([blob],filename,{type:'image/png'}); }catch(e){ file=blob; file.name=filename; }
   if(window.__riverShareUrl) URL.revokeObjectURL(window.__riverShareUrl);
-  window.__riverShareFile=file;
-  window.__riverShareUrl=URL.createObjectURL(blob);
-  if(showStatusMsg) shareStatus.textContent='分享圖已生成，準備分享中…';
-  return {blob,file,url:window.__riverShareUrl};
+  const url=URL.createObjectURL(blob);
+  window.__riverShareUrl=url;
+  cachedShareAsset={blob,file,url,filename};
+  if(showStatusMsg) $('shareStatus').textContent='分享圖準備完成。';
+  return cachedShareAsset;
+}
+
+function prepareShareAsset(){
+  cachedShareAsset=null;
+  shareAssetPromise=generateShareImage(false).catch(err=>{
+    console.error('prepareShareAsset',err);
+    cachedShareAsset=null;
+    return null;
+  });
 }
 
 function downloadShareAsset(asset){
   const a=document.createElement('a');
   a.href=asset.url;
-  a.download=asset.file?.name || `river-tarot-${Date.now()}.png`;
+  a.download=asset.filename || 'river-tarot.png';
   document.body.appendChild(a);
   a.click();
-  a.remove();
+  setTimeout(()=>a.remove(),100);
 }
 
 async function shareReading(){
   if(current.length!==3 || !current.every(c=>c.revealed)){
-    shareStatus.textContent='請先翻開三張牌，再分享。';
+    $('shareStatus').textContent='請先翻開三張牌，再分享。';
     return;
   }
+  const button=$('shareReadingBtn');
+  button.disabled=true;
+  $('shareStatus').textContent='正在準備分享…';
   try{
-    const asset = await generateShareImage(true);
-    if(!asset) return;
+    let asset=cachedShareAsset;
+    if(!asset && shareAssetPromise) asset=await shareAssetPromise;
+    if(!asset) asset=await generateShareImage(false);
+    if(!asset) throw new Error('No share asset');
     const text=buildShareCaption();
-    if(navigator.share){
-      try{
-        if(!navigator.canShare || navigator.canShare({files:[asset.file]})){
-          await navigator.share({files:[asset.file],title:'River Tarot Reading',text});
-          shareStatus.textContent='已開啟分享視窗，你可以直接選 Instagram，或儲存圖片後再分享。';
+
+    // iPhone/iPad Safari: pre-generating the file keeps the share action reliable.
+    if(navigator.share && asset.file){
+      const shareData={title:'River Tarot Reading',text,files:[asset.file]};
+      const canShare=!navigator.canShare || navigator.canShare({files:[asset.file]});
+      if(canShare){
+        try{
+          await navigator.share(shareData);
+          $('shareStatus').textContent='分享視窗已開啟，可選 Instagram、訊息或「儲存影像」。';
           return;
-        }
-      }catch(err){
-        if(err && err.name==='AbortError'){
-          shareStatus.textContent='你先取消了分享，沒關係，分享圖已幫你準備好。';
+        }catch(err){
+          if(err && err.name==='AbortError'){
+            $('shareStatus').textContent='已取消分享。需要的話再按一次即可。';
+            return;
+          }
+          console.warn('Web Share failed',err);
         }
       }
     }
+
     downloadShareAsset(asset);
-    try{ if(navigator.clipboard?.writeText){ await navigator.clipboard.writeText(text); shareStatus.textContent='已自動下載分享圖，並複製貼文文字。可直接上傳到 IG。'; return; } }catch(e){}
-    shareStatus.textContent='已自動下載分享圖。若瀏覽器不能直接分享到 IG，請手動上傳即可。';
+    try{ if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(text); }catch(e){}
+    $('shareStatus').textContent='此瀏覽器無法直接叫出 IG；分享圖已下載，可直接從照片上傳到 Instagram。';
   }catch(err){
     console.error(err);
-    shareStatus.textContent='分享圖生成失敗，請重新整理後再試一次。';
+    $('shareStatus').textContent='分享暫時失敗。請再按一次；若仍失敗，重新整理頁面後重試。';
+  }finally{
+    button.disabled=false;
   }
 }
 
 function renderAnalysis(){
-  revealPrompt.textContent='三張牌已全部翻開，以下為完整中文解析。';
+  $('revealPrompt').textContent='三張牌已全部翻開，以下為完整中文解析。';
   const r=buildAnalysis();
-  analysisText.textContent=r.overall;
-  comboText.textContent=r.connections;
-  conclusionText.textContent=r.conclusion;
-  adviceText.innerHTML=renderAdviceHTML(r.advice, adviceSteps());
-  readingAnalysis.classList.remove('hidden');
+  $('analysisText').textContent=r.overall;
+  $('comboText').textContent=r.connections;
+  $('conclusionText').textContent=r.conclusion;
+  $('adviceText').innerHTML=renderAdviceHTML(r.advice, adviceSteps());
+  $('readingAnalysis').classList.remove('hidden');
+  prepareShareAsset();
 }
 
 function renderAdviceHTML(intro,steps){
