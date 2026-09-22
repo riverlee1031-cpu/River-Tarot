@@ -29,6 +29,12 @@ const suitProfiles = {
   Swords:{focus:'thought, communication, conflict and decisions', love:'communication and mental tension', career:'strategy, pressure and choices', money:'judgment, contracts and risk', general:'clarity and decision-making'},
   Pentacles:{focus:'stability, resources, the body and long-term results', love:'consistency and commitment', career:'skills, work and tangible results', money:'income, assets and practical security', general:'grounding and real-world foundations'}
 };
+const suitProfilesZH = {
+  '權杖':{focus:'行動、熱情與推進',love:'主動釋出一個清楚訊號',career:'把點子排進行程並開始執行',money:'先算風險，再決定要不要出手',general:'選一個方向，停止原地熱身'},
+  '聖杯':{focus:'感受、連結與直覺',love:'說真話，也觀察對方是否同樣投入',career:'確認這件事是否真的符合你的價值',money:'別讓情緒替錢包按下結帳',general:'承認感受，但別把感受當成全部事實'},
+  '寶劍':{focus:'思考、溝通與判斷',love:'把猜測改成一個可以回答的問題',career:'寫清楚目標、責任與下一步',money:'核對數字、條款與最壞情境',general:'先整理資訊，再做決定'},
+  '星幣':{focus:'現實、資源與長期穩定',love:'看持續行動，不只看一時氣氛',career:'用可量化的小成果累積進度',money:'建立預算、緩衝與明確上限',general:'把答案落到今天做得到的一小步'}
+};
 
 const majorMeaning = {
 '00-fool':['new beginnings, freedom, trust and a leap into the unknown','recklessness, hesitation, poor timing or fear of beginning'],
@@ -314,9 +320,23 @@ function riverMeaning(c){
   return c.river?.[side] || '';
 }
 
+function plainMeaning(c,i){
+  const core=coreMeaning(c);
+  const positionLead=[
+    '這張牌放在「我」，是在照出你現在帶進問題裡的狀態',
+    '這張牌放在「對方」，是在描述對方目前較可能呈現的態度',
+    '這張牌放在「關係現況」，是在說明你們現在反覆上演的互動模式',
+    '這張牌放在「建議」，是在提醒你最值得採取的方向'
+  ][i];
+  const turn=isUp(c)
+    ? `正位讓「${core}」比較容易直接發揮；有機會就用，但不用演成八點檔主角。`
+    : `逆位表示「${core}」可能卡住、過量或還沒說出口；先修正節奏，不必急著替結局配樂。`;
+  return `${positionLead}。${turn}`;
+}
+
 function showCardDetail(i){
   const c=current[i];
-  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${positionZH[i]} · ${positions[i]}</p><h2>${c.zh} <small>${c.en}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>核心牌義</h3><p>${coreMeaning(c)}</p><h3>${topicZH[topic]}解讀</h3><p>${topicMeaning(c)}</p><h3>RIVER READING</h3><p>${riverMeaning(c)}</p>`;
+  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${positionZH[i]} · ${positions[i]}</p><h2>${c.zh} <small>${c.en}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>核心牌義</h3><p>${coreMeaning(c)}</p><h3>簡單說</h3><p>${plainMeaning(c,i)}</p><h3>${topicZH[topic]}解讀</h3><p>${topicMeaning(c)}</p><h3>RIVER READING</h3><p>${riverMeaning(c)}</p>`;
 }
 
 function cardSeed(){return current.reduce((n,c,i)=>n+(c.id+1)*(i+5)+(c.orientation==='reversed'?71:0),topic.length*29);}
@@ -326,17 +346,19 @@ function isUp(c){return c.orientation==='upright';}
 
 function orientationPattern(){
   const ups=current.filter(isUp).length;
-  if(ups===4)return '四張皆為正位，代表雙方與關係現況目前較有可運用的空間，重點是把好感、溝通與行動真正對上。';
-  if(ups===0)return '四張皆為逆位，顯示這段關係目前容易卡在誤解、壓力或彼此不同步。比起急著定義結果，更適合先處理互動本身。';
-  if(ups===3)return '三正一逆，整體仍偏順，但那張逆位就是這段關係最需要處理的卡點。';
-  if(ups===2)return '兩正兩逆，代表有吸引或可行空間，也有明顯阻力；這不是沒有答案，而是雙方節奏還沒完全對上。';
-  return '只有一張正位，表示目前可用的突破口很集中。先抓住那個最清楚的資源，不要一次硬推整段關係。';
+  const subject={love:'這段關係',career:'這個工作議題',money:'這個財務決定',general:'目前的處境'}[topic];
+  if(ups===4)return `四張皆為正位，代表${subject}有較多可運用的空間，重點是把想法、條件與行動真正對上。`;
+  if(ups===0)return `四張皆為逆位，顯示${subject}容易卡在資訊、壓力或節奏失衡。比起急著定義結果，更適合先處理眼前問題。`;
+  if(ups===3)return `三正一逆，整體仍偏順，但那張逆位就是${subject}最需要處理的卡點。`;
+  if(ups===2)return `兩正兩逆，代表${subject}有可行空間，也有明顯阻力；這不是沒有答案，而是條件與節奏還沒完全對上。`;
+  return `只有一張正位，表示目前可用的突破口很集中。先抓住那個最清楚的資源，不要一次硬推${subject}。`;
 }
 
 function majorPattern(){
   const majors=current.filter(c=>c.arcana==='major').length;
-  if(majors>=3)return `四張中有${majors}張大阿爾克那，這段互動牽涉的主題較深，可能不只是短暫情緒，而是價值、界線或人生階段的碰撞。`;
-  if(majors===2)return '出現兩張大阿爾克那，表示這段關係對雙方都有一定份量，值得看長期模式，不只看眼前感受。';
+  const subject={love:'這段互動',career:'這個工作議題',money:'這個財務決定',general:'目前的處境'}[topic];
+  if(majors>=3)return `四張中有${majors}張大阿爾克那，${subject}牽涉的主題較深，可能不只是短暫情緒，而是價值、界線或人生階段的碰撞。`;
+  if(majors===2)return `出現兩張大阿爾克那，表示${subject}有一定份量，值得看長期模式，不只看眼前感受。`;
   if(majors===1)return '其中一張大阿爾克那是這組牌的主軸，尤其要看它落在「我、對方、關係現況、建議」哪個位置。';
   return '四張皆為小阿爾克那，焦點偏向日常互動與可調整的行為，代表變動空間其實不小。';
 }
@@ -386,31 +408,86 @@ function pairTransition(a,b,label){
 
 function relationshipConclusion(){
   const [me,them,dynamic,advice]=current;
-  const meTone=isUp(me)?'你這邊的能量相對比較直接、願意面對':'你這邊可能有保留、猶豫或內耗';
-  const themTone=isUp(them)?'對方目前的能量較願意回應或保持開放':'對方目前比較容易保留、拉開距離或有自己的卡點';
-  const dynamicTone=isUp(dynamic)?`關係現況的「${dynamic.zh}」正位表示互動裡仍有可被看見、可被推進的部分`:`關係現況的「${dynamic.zh}」逆位提醒，現在最重要的不是硬推結果，而是先看清楚失衡或誤解在哪裡`;
+  const topicFrame={
+    love:['你這邊的情感與期待','對方目前的回應能量','這段關係'],
+    career:['你目前的工作立場與能力','相關人物或環境的回應','這個工作局面'],
+    money:['你面對金錢與風險的狀態','市場、合作方或現實條件','這個財務局面'],
+    general:['你目前帶進問題的狀態','外在人物或環境的回應','目前的整體處境']
+  }[topic];
+  const meTone=isUp(me)?`${topicFrame[0]}相對清楚、願意面對`:`${topicFrame[0]}可能有保留、猶豫或內耗`;
+  const themTone=isUp(them)?`${topicFrame[1]}較開放或有可用空間`:`${topicFrame[1]}比較保留、延遲或有自己的卡點`;
+  const dynamicTone=isUp(dynamic)?`${topicFrame[2]}的「${dynamic.zh}」正位表示仍有可被看見、可被推進的部分`:`${topicFrame[2]}的「${dynamic.zh}」逆位提醒，現在最重要的不是硬推結果，而是先看清楚失衡或誤解在哪裡`;
   const adviceTone=isUp(advice)?`建議牌「${advice.zh}」正位比較像一句明確提示：採取它最健康、最成熟的做法`:`建議牌「${advice.zh}」逆位是在提醒你別用力過頭，先修正舊模式，再決定是否推進`;
   return `${meTone}；${themTone}。${dynamicTone}。${adviceTone}。`;
 }
 
+function dominantSuit(){
+  const counts={};
+  current.filter(c=>c.arcana==='minor'&&c.suit).forEach(c=>{counts[c.suit]=(counts[c.suit]||0)+1;});
+  const dominant=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  return dominant?.[1]>=2?dominant[0]:'';
+}
+
 function adviceSteps(){
   const advice=current[3];
-  const base=[
-    `先看對方實際怎麼做，不要只聽腦內小劇場開會。關係不是猜謎節目，行為才是比較可靠的字幕。`,
-    `把「我想要的答案」和「現在真的發生什麼」分開。喜歡可以浪漫，判斷還是要帶一點現實感。`,
-    `給這段關係一個小而清楚的測試，例如一次邀約、一個明確問題或一點點主動。看對方是接球、回球，還是直接把球踢去隔壁棚。`
-  ];
-  const cardSpecific=isUp(advice)?`最後，建議牌是「${advice.zh}」正位：把它最健康的特質拿來用，今天就做一件對應的小事。`:`最後，建議牌是「${advice.zh}」逆位：先別急著衝，先把它提醒的卡點處理掉，不然很容易努力半天只是在原地踩飛輪。`;
-  return [base[(cardSeed()+1)%base.length],base[(cardSeed()+3)%base.length],cardSpecific];
+  const dynamic=current[2];
+  const suit=dominantSuit();
+  const profile=suitProfilesZH[suit];
+  const ups=current.filter(isUp).length;
+  const majors=current.filter(c=>c.arcana==='major').length;
+  const topicActions={
+    love:[
+      '丟一個小而清楚的訊號或問題，然後觀察對方是否也願意往前一步；感情可以浪漫，但不要只靠心電感應。',
+      '把你真正需要的回應說清楚，再看對方的持續行動。偶爾秒回是煙火，穩定出現才比較像電力公司。',
+      '安排一次低壓、能自然交談的互動，讓關係接受現實測試；腦內戀愛很省車錢，但不一定到得了目的地。'
+    ],
+    career:[
+      '把問題縮成一個今天能完成的動作，定下期限並留下成果；忙得像陀螺不等於真的有前進。',
+      '找一位關鍵人物確認優先順序、責任和成功標準，別讓「大家應該都知道」成為專案的都市傳說。',
+      '先做一個小版本或草稿，用真實回饋修正方向；完美若永遠沒交付，只是穿西裝的拖延。'
+    ],
+    money:[
+      '把金額、期限、必要性和最壞情境寫下來，至少隔一晚再決定；購物車不會因為寂寞而過期。',
+      '先補最明顯的漏洞，再談加碼或投資；財務自由通常先從不讓錢包自由落體開始。',
+      '設定一個可承受上限並保留緩衝，不用為了證明勇敢，讓下個月的自己打電話來客訴。'
+    ],
+    general:[
+      '選一個最能改善現況的小動作，在二十四小時內完成；宇宙可以給提示，但待辦事項還是得你按完成。',
+      '把可控制、需等待、該放下的事分成三欄，先處理第一欄；別一次應徵全宇宙的客服。',
+      '用一個小實驗驗證你的想法，設定觀察期限後再評估；先收資料，別急著替第一集寫大結局。'
+    ]
+  };
+  const first=chooseVariant(topicActions[topic],11);
+  const second=profile
+    ? `這組牌的${suit}偏多，先把重點放在${profile[topic]}。${profile.focus}是主菜，其他腦補先放旁邊當香菜。`
+    : majors>=2
+      ? `大阿爾克那比例高，先確認這件事碰到的是價值、界線還是人生方向；別只修表面劇情，底層設定也要更新。`
+      : `四張牌沒有單一花色壓倒性主導，請同時檢查感受、想法與現實條件；只開一個視窗，很容易漏看系統通知。`;
+  const third=isUp(advice)
+    ? `最後照「${advice.zh}」正位行動：把「${coreMeaning(advice)}」化成一件可觀察的小事，並看「${dynamic.zh}」所代表的現況是否真的改善。牌給方向，結果還是看現實有沒有上班。`
+    : `最後照「${advice.zh}」逆位踩煞車：先處理「${coreMeaning(advice)}」的失衡，再決定是否推進。現在有${4-ups}張逆位，硬衝只會讓內耗拿到加班費。`;
+  return [first,second,third];
 }
 function buildAdviceIntro(){
-  return `這組牌比較像一位嘴巴有點壞但其實很關心你的朋友：它不替你決定關係要不要繼續，但會提醒你別只看感覺，要看雙方有沒有真的在同一條線上。`;
+  const intros={
+    love:'這組牌不替誰頒發「命中注定」獎盃；它要你看清互相回應、界線和實際行動。',
+    career:'這組牌不負責替老闆寫加薪信，但會幫你把能控制的下一步抓出來。',
+    money:'這組牌可以提醒風險，不能代替預算表；浪漫留給人生，數字還是請誠實。',
+    general:'這組牌像一位嘴巴有點壞、方向感卻不錯的朋友：不替你決定，但會把下一步照亮。'
+  };
+  return intros[topic];
 }
 
 function buildAnalysis(){
   const [me,them,dynamic,advice]=current;
   const questionFrame=questionText?`針對你寫下的問題「${questionText}」，`:'這次牌陣中，';
-  const overall=`${questionFrame}第一張「${me.zh}」${orientationLabel(me)}代表你目前帶進這段關係的狀態；第二張「${them.zh}」${orientationLabel(them)}反映對方在這段互動中的能量；第三張「${dynamic.zh}」${orientationLabel(dynamic)}描述你們目前真正存在的互動模式；第四張「${advice.zh}」${orientationLabel(advice)}則是這次最值得帶走的提醒。 ${orientationPattern()} ${majorPattern()}`;
+  const frames={
+    love:['你目前帶進這段關係的狀態','對方在這段互動中的能量','你們目前真正存在的互動模式'],
+    career:['你目前面對工作的狀態','相關人物、團隊或環境的回應','工作局面的實際運作方式'],
+    money:['你目前面對金錢與風險的狀態','市場、合作方或現實條件的回應','財務局面的實際發展'],
+    general:['你目前帶進問題的狀態','外在人物或環境的回應','事情現在的運作方式']
+  }[topic];
+  const overall=`${questionFrame}第一張「${me.zh}」${orientationLabel(me)}代表${frames[0]}；第二張「${them.zh}」${orientationLabel(them)}反映${frames[1]}；第三張「${dynamic.zh}」${orientationLabel(dynamic)}描述${frames[2]}；第四張「${advice.zh}」${orientationLabel(advice)}則是這次最值得帶走的提醒。 ${orientationPattern()} ${majorPattern()}`;
   const connections=[
     pairTransition(me,them,'我 ↔ 對方'),
     `關係現況：${dynamic.zh}（${orientationLabel(dynamic)}）的核心是「${coreMeaning(dynamic)}」。`,
@@ -536,7 +613,7 @@ async function generateShareImage(showStatusMsg=false){
   steps.forEach((t,idx)=>{y=wrapText(ctx,`${idx+1}. ${t}`,92,y+68,890,31,3);y+=8;});
   ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New, monospace';
   ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
-  ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.8 · UPDATE 08',W-270,H-68);
+  ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.9 · UPDATE 09',W-270,H-68);
 
   let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
   if(!blob){
