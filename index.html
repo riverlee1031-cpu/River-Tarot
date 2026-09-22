@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090b12">
-<title>RIVER TAROT v1.3</title>
+<title>RIVER TAROT v1.5</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,7 +32,7 @@
 
     <main class="main-content">
       <section class="brand-block">
-        <h1>RIVER TAROT <small>v1.3</small></h1>
+        <h1>RIVER TAROT <small>v1.5</small></h1>
         <p class="subbrand">A 78-CARD RETRO TAROT EXPERIENCE</p>
         <p class="mystic-cn">在靜謐與直覺之間，讓牌替你照見尚未說出口的答案。</p>
         <p class="micro-line">ONE QUESTION. A DIFFERENT TOMORROW.</p>
@@ -56,32 +56,33 @@
               </div>
             </section>
 
+            <section class="step-panel question-panel">
+              <div class="step-title"><span>3</span><strong>DESCRIBE YOUR QUESTION</strong></div>
+              <label class="question-label" for="questionInput">簡單寫下你想問的事（50字內）</label>
+              <textarea id="questionInput" class="question-input" maxlength="50" rows="3" placeholder="例如：我和某人的關係接下來會怎麼發展？"></textarea>
+              <div class="question-meta"><span>Keep it simple. One clear question works best.</span><strong id="questionCount">0 / 50</strong></div>
+            </section>
+
             <section class="step-panel begin-panel">
-              <div class="step-title"><span>3</span><strong>OPEN THE CARDS</strong></div>
-              <button id="beginBtn" class="open-spread" type="button"><span>▶</span> OPEN THE SPREAD</button>
-              <p class="trust-line">TRUST THE PROCESS　✦　CHOOSE WHAT CALLS TO YOU</p>
+              <div class="step-title"><span>4</span><strong>OPEN THE CARDS</strong></div>
+              <button id="beginBtn" class="open-spread" type="button" disabled><span>▶</span> OPEN THE SPREAD</button>
+              <p class="trust-line" id="questionHint">先寫下問題，再讓牌開始說話。</p>
             </section>
           </div>
 
-          <aside class="city-panel">
+          <aside class="city-panel city-panel-gif">
             <div class="city-copy">LIKE A RIVER,<br>THE ANSWERS<br>ALWAYS FLOW.</div>
-            <div class="pixel-city" aria-hidden="true">
-              <div class="city-moon">☾</div>
-              <div class="sky-stars">✦　·　✦　·　✧　·　✦</div>
-              <div class="skyline">▁▃▅▂▇▃▆▂▅▃▇▂▆</div>
-              <div class="water">≈ ≈ ≈ ≈ ≈ ≈ ≈ ≈</div>
-              <div class="cat">▲<br>●</div>
-              <div class="record">◉━━</div>
-              <div class="mug">▣</div>
+            <div class="city-gif-wrap">
+              <img class="city-gif" src="assets/river-cat-cafe.gif" alt="Animated retro night cafe scene with a cat, coffee and neon city view">
             </div>
-            <div class="city-caption">CITY POP · NIGHT READING</div>
+            <div class="city-caption">RIVER CAT CAFE · NIGHT READING</div>
           </aside>
         </div>
       </section>
 
       <section id="choose" class="view">
         <div class="reading-topline">
-          <div><span class="eyebrow">YOUR QUESTION</span><h2 id="chooseTopicBadge">♥ LOVE</h2></div>
+          <div><span class="eyebrow">YOUR QUESTION</span><h2 id="chooseTopicBadge">♥ LOVE</h2><p id="chooseQuestionText" class="user-question"></p></div>
           <button id="changeQuestionBtn" class="utility-btn" type="button">← CHANGE QUESTION</button>
         </div>
 
@@ -109,7 +110,7 @@
 
       <section id="reading" class="view">
         <div class="reading-topline">
-          <div><span class="eyebrow">YOUR THREE-CARD READING</span><h2 id="readingTopic">LOVE</h2></div>
+          <div><span class="eyebrow">YOUR THREE-CARD READING</span><h2 id="readingTopic">LOVE</h2><p id="readingQuestionText" class="user-question"></p></div>
           <button id="newQuestionBtn" class="utility-btn" type="button">NEW QUESTION →</button>
         </div>
 
@@ -153,7 +154,7 @@
       <a href="https://www.instagram.com/riverboxing/" target="_blank" rel="noreferrer" title="Instagram">▣</a>
       <span class="footer-url">riverlee1031-cpu.github.io/River-Tarot</span>
     </div>
-    <div class="footer-meta"><span class="credit-line">CREDIT BY RIVER</span><span class="update-link">v1.3 · UPDATE 03</span></div>
+    <div class="footer-meta"><span class="credit-line">CREDIT BY RIVER</span><span class="update-link">v1.5 · UPDATE 05</span></div>
     <div class="clockbox"><span>▥　♪</span><span id="clock"></span></div>
   </footer>
 </div>

@@ -4,6 +4,8 @@ let shuffledDeck = [];
 let selected = [];
 let current = [];
 let shuffleTimer = null;
+let questionText = '';
+
 
 const topicLabels = {
   love: '♥ LOVE',
@@ -143,6 +145,12 @@ function bindUI(){
     topic=btn.dataset.topic;
     document.querySelectorAll('.topic').forEach(x=>x.classList.toggle('active',x===btn));
   }));
+  questionInput.addEventListener('input',()=>{
+    questionText=questionInput.value.trim().slice(0,50);
+    questionCount.textContent=`${questionInput.value.length} / 50`;
+    beginBtn.disabled=questionText.length===0;
+    questionHint.textContent=questionText.length? '問題已收好。接下來交給你的直覺。':'先寫下問題，再讓牌開始說話。';
+  });
   beginBtn.addEventListener('click',openSpread);
   homeNav.addEventListener('click',()=>show('home'));
   readingNav.addEventListener('click',()=>{ if(current.length===3) show('reading'); else openSpread(); });
@@ -170,9 +178,18 @@ function shuffle(array){
 }
 
 function openSpread(isReshuffle=false){
+  if(!isReshuffle){
+    questionText=(questionInput?.value||'').trim().slice(0,50);
+    if(!questionText){
+      questionInput?.focus();
+      questionHint.textContent='請先寫下你的問題（50字內）。';
+      return;
+    }
+  }
   selected=[];
   shuffledDeck=shuffle(cards);
   chooseTopicBadge.textContent=topicLabels[topic];
+  chooseQuestionText.textContent=questionText;
   chooseCounter.textContent='0 / 3 SELECTED';
   chooseHint.textContent=isReshuffle?'The deck is moving again. Let your attention settle naturally.':'Choose the card that calls to you first.';
   chooseStatus.textContent='';
@@ -255,6 +272,7 @@ function revealReading(){
   if(selected.length!==3)return;
   current=selected.map(c=>({...c,revealed:false}));
   readingTopic.textContent=topicTitles[topic];
+  readingQuestionText.textContent=questionText;
   renderSpread();
   detail.innerHTML='<h3>牌卡解析</h3><p>請依序翻開三張牌，再點選任一張牌查看中文解讀。</p>';
   readingAnalysis.classList.add('hidden');
@@ -414,7 +432,8 @@ function buildAnalysis(){
     `這三張牌的訊息藏在前後關係裡。比起單看一張牌，更重要的是能量如何從過去流向現在，再走向未來。`
   ]);
   const flow=` 過去是「${past.zh}」${orientationLabel(past)}：${coreMeaning(past)}；現在是「${present.zh}」${orientationLabel(present)}：${coreMeaning(present)}；未來是「${future.zh}」${orientationLabel(future)}：${coreMeaning(future)}。`;
-  const overall=`${opening}${flow} ${orientationPattern()} ${majorPattern()}`;
+  const questionFrame=questionText?`針對你寫下的問題「${questionText}」，這組牌會更著重在你真正想確認的核心，而不是泛泛地看運勢。 `:'';
+  const overall=`${questionFrame}${opening}${flow} ${orientationPattern()} ${majorPattern()}`;
   const connections=[pairTransition(past,present,'過去 → 現在'),pairTransition(present,future,'現在 → 未來'),suitPattern(),...specialConnections()].filter(Boolean).join(' ');
   const futureFrame=isUp(future)?`未來位置的「${future.zh}」描述的是目前模式繼續下去時的一種可能方向，它仍需要真實選擇與行動才會變得具體。`:`未來位置的「${future.zh}」逆位比較適合視為需要調整或避免的模式，而不是一定會發生的預言。`;
   const conclusion=`${topicConclusion()} ${futureFrame}`;
@@ -424,7 +443,7 @@ function buildAnalysis(){
 function openChatGPTReading(){
   if(current.length!==3)return;
   const cardLines=current.map((c,i)=>`${positionZH[i]}：${c.zh}（${c.en}）${orientationLabel(c)}`).join('；');
-  const prompt=`請用繁體中文深入解讀我的三張塔羅牌。主題：${topicZH[topic]}。牌陣是過去／現在／未來。${cardLines}。請分析三張牌彼此的連動、正逆位的影響、時間線的轉折、可能的核心問題與具體行動建議；不要把塔羅當成必然預言，請把它當作反思與決策參考。`;
+  const prompt=`請用繁體中文深入解讀我的三張塔羅牌。主題：${topicZH[topic]}。我的問題是：「${questionText}」。牌陣是過去／現在／未來。${cardLines}。請分析三張牌彼此的連動、正逆位的影響、時間線的轉折、可能的核心問題與具體行動建議；不要把塔羅當成必然預言，請把它當作反思與決策參考。`;
   const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
   window.open(url,'_blank','noopener,noreferrer');
 }
@@ -434,7 +453,7 @@ function buildShareCaption(){
   const cardLines=current.map((c,i)=>`${positionZH[i]}｜${c.zh} ${orientationLabel(c)}`).join('\n');
   const summary=conclusionText.textContent || buildAnalysis().conclusion;
   const steps=adviceSteps();
-  return `River Tarot 三張牌解讀\n主題：${topicZH[topic]}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
+  return `River Tarot 三張牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
 }
 
 async function generateShareImage(showStatusMsg=false){
@@ -453,10 +472,11 @@ async function generateShareImage(showStatusMsg=false){
   ctx.strokeStyle='rgba(196,124,237,.55)'; ctx.lineWidth=4; ctx.strokeRect(22,22,W-44,H-44);
   ctx.fillStyle='#efe7ff'; ctx.font='bold 58px Georgia'; ctx.fillText('RIVER TAROT',74,96);
   ctx.fillStyle='#cbb7ea'; ctx.font='28px Courier New'; ctx.fillText(`三張牌解讀  ·  ${topicZH[topic]}`,76,142);
+  ctx.fillStyle='#e7d9ee'; ctx.font='23px \"Microsoft JhengHei\"'; wrapText(ctx,`問題：${questionText}`,76,178,900,30,2);
   ctx.fillStyle='#dcd2ef'; ctx.font='22px serif';
   const dateStr=new Date().toLocaleDateString('zh-TW'); ctx.fillText(dateStr,W-220,96);
   const imgs=await Promise.all(current.map(c=>loadImg(c.image)));
-  const cardW=240, cardH=360, topY=190; const xs=[110,420,730];
+  const cardW=240, cardH=360, topY=235; const xs=[110,420,730];
   imgs.forEach((img,i)=>{
     const x=xs[i], y=topY + (i===1?0:18);
     ctx.save();
@@ -471,10 +491,10 @@ async function generateShareImage(showStatusMsg=false){
     ctx.fillStyle='#cfb3ff'; ctx.font='22px "Microsoft JhengHei"'; ctx.fillText(`${current[i].zh} ${orientationLabel(current[i])}`, x+cardW/2, topY+cardH+95);
   });
   ctx.textAlign='left';
-  ctx.fillStyle='rgba(10,12,22,.55)'; roundRect(ctx,64,700,952,255,18); ctx.fill(); ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('結論',86,742);
+  ctx.fillStyle='rgba(10,12,22,.55)'; roundRect(ctx,64,745,952,255,18); ctx.fill(); ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
+  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('結論',86,787);
   ctx.fillStyle='#f2edf9'; ctx.font='24px "Microsoft JhengHei"';
-  let y=wrapText(ctx,(conclusionText.textContent || buildAnalysis().conclusion),86,782,905,36,4);
+  let y=wrapText(ctx,(conclusionText.textContent || buildAnalysis().conclusion),86,827,905,36,4);
   ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px "Microsoft JhengHei"'; ctx.fillText('建議',86,y+20);
   ctx.fillStyle='#f2edf9'; ctx.font='23px "Microsoft JhengHei"';
   const steps=adviceSteps();

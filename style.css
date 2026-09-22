@@ -33,3 +33,16 @@
 @media(max-width:650px){.reading-actions.four-actions{grid-template-columns:1fr}}
 
 .footer-meta{display:flex;align-items:center;gap:10px}.credit-line{background:#1f2538;color:#e8d9ef;border:2px outset #777;padding:8px 12px;white-space:nowrap;font-family:"Courier New",monospace;font-size:12px;letter-spacing:1px}@media(max-width:1050px){.footer-meta{gap:8px}.credit-line{padding:7px 10px;font-size:11px}}@media(max-width:650px){.credit-line{display:none}}
+
+
+/* v1.4 cat cafe gif panel */
+.city-panel-gif{display:flex;flex-direction:column;justify-content:space-between;gap:14px;padding:18px;background:radial-gradient(circle at 76% 22%,rgba(98,67,170,.22),transparent 22%),linear-gradient(#111133 0,#15103c 47%,#080e1b 100%)}
+.city-gif-wrap{position:relative;z-index:2;border:2px solid rgba(173,124,206,.55);box-shadow:inset 0 0 0 1px rgba(242,223,255,.15),0 0 20px rgba(101,59,144,.18);background:rgba(6,7,18,.55);padding:10px}
+.city-gif{display:block;width:100%;height:auto;border:1px solid rgba(229,212,255,.18);image-rendering:pixelated}
+.city-panel-gif .city-copy{padding-right:16px}
+.city-panel-gif .city-caption{position:static;margin-top:auto;text-align:right;color:#c8b2d9}
+@media(max-width:650px){.city-panel-gif{padding:12px}.city-gif-wrap{padding:6px}}
+
+
+/* v1.5 question input */
+.question-panel{padding:12px 14px}.question-label{display:block;margin:12px 0 7px;color:#e5d7ea;font-family:"Microsoft JhengHei",sans-serif;font-size:14px}.question-input{width:100%;resize:none;background:#0b1118;color:#f1e8f4;border:1px solid #7b5b8e;box-shadow:inset 0 0 0 1px rgba(165,112,194,.18);padding:13px 14px;font:15px/1.6 "Microsoft JhengHei","Courier New",sans-serif;outline:none}.question-input:focus{border-color:#c58adf;box-shadow:0 0 0 2px rgba(172,103,206,.15),inset 0 0 0 1px rgba(165,112,194,.2)}.question-input::placeholder{color:#746b7b}.question-meta{display:flex;justify-content:space-between;gap:12px;margin-top:7px;color:#9f8daa;font-size:11px;letter-spacing:.5px}.question-meta strong{color:#cdb4d9}.open-spread:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.35)}.user-question{margin:6px 0 0;color:#d8c6df;font-family:"Microsoft JhengHei",sans-serif;font-size:14px;line-height:1.5;max-width:760px}.user-question:before{content:"「"}.user-question:after{content:"」"}@media(max-width:650px){.question-meta{display:block}.question-meta strong{display:block;margin-top:5px}.user-question{font-size:13px}}
