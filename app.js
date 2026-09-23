@@ -29,13 +29,6 @@ const suitProfiles = {
   Swords:{focus:'thought, communication, conflict and decisions', love:'communication and mental tension', career:'strategy, pressure and choices', money:'judgment, contracts and risk', general:'clarity and decision-making'},
   Pentacles:{focus:'stability, resources, the body and long-term results', love:'consistency and commitment', career:'skills, work and tangible results', money:'income, assets and practical security', general:'grounding and real-world foundations'}
 };
-const suitProfilesZH = {
-  '權杖':{focus:'行動、熱情與推進',love:'主動釋出一個清楚訊號',career:'把點子排進行程並開始執行',money:'先算風險，再決定要不要出手',general:'選一個方向，停止原地熱身'},
-  '聖杯':{focus:'感受、連結與直覺',love:'說真話，也觀察對方是否同樣投入',career:'確認這件事是否真的符合你的價值',money:'別讓情緒替錢包按下結帳',general:'承認感受，但別把感受當成全部事實'},
-  '寶劍':{focus:'思考、溝通與判斷',love:'把猜測改成一個可以回答的問題',career:'寫清楚目標、責任與下一步',money:'核對數字、條款與最壞情境',general:'先整理資訊，再做決定'},
-  '星幣':{focus:'現實、資源與長期穩定',love:'看持續行動，不只看一時氣氛',career:'用可量化的小成果累積進度',money:'建立預算、緩衝與明確上限',general:'把答案落到今天做得到的一小步'}
-};
-
 const majorMeaning = {
 '00-fool':['new beginnings, freedom, trust and a leap into the unknown','recklessness, hesitation, poor timing or fear of beginning'],
 '01-magician':['agency, skill, focus and turning potential into action','scattered energy, manipulation or unused ability'],
@@ -289,6 +282,11 @@ function revealReading(){
   readingAnalysis.classList.add('hidden');
   revealPrompt.textContent='依序翻開四張牌，完整解析會在全部翻開後出現。';
   show('reading');
+  const readingView=$('reading');
+  readingView.classList.remove('reading-enter');
+  void readingView.offsetWidth;
+  readingView.classList.add('reading-enter');
+  window.setTimeout(()=>readingView.classList.remove('reading-enter'),900);
 }
 
 function renderSpread(){
@@ -414,6 +412,7 @@ function pairTransition(a,b,label){
 
 function relationshipConclusion(){
   const [me,them,dynamic,advice]=current;
+  const uprightCount=current.filter(isUp).length;
   const topicFrame={
     love:['你這邊的情感與期待','對方目前的回應能量','這段關係'],
     career:['你目前的工作立場與能力','相關人物或環境的回應','這個工作局面'],
@@ -424,64 +423,13 @@ function relationshipConclusion(){
   const themTone=isUp(them)?`${topicFrame[1]}較開放或有可用空間`:`${topicFrame[1]}比較保留、延遲或有自己的卡點`;
   const dynamicTone=isUp(dynamic)?`${topicFrame[2]}的「${dynamic.zh}」正位表示仍有可被看見、可被推進的部分`:`${topicFrame[2]}的「${dynamic.zh}」逆位提醒，現在最重要的不是硬推結果，而是先看清楚失衡或誤解在哪裡`;
   const adviceTone=isUp(advice)?`建議牌「${advice.zh}」正位比較像一句明確提示：採取它最健康、最成熟的做法`:`建議牌「${advice.zh}」逆位是在提醒你別用力過頭，先修正舊模式，再決定是否推進`;
-  return `${meTone}；${themTone}。${dynamicTone}。${adviceTone}。`;
-}
-
-function dominantSuit(){
-  const counts={};
-  current.filter(c=>c.arcana==='minor'&&c.suit).forEach(c=>{counts[c.suit]=(counts[c.suit]||0)+1;});
-  const dominant=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
-  return dominant?.[1]>=2?dominant[0]:'';
-}
-
-function adviceSteps(){
-  const advice=current[3];
-  const dynamic=current[2];
-  const suit=dominantSuit();
-  const profile=suitProfilesZH[suit];
-  const ups=current.filter(isUp).length;
-  const majors=current.filter(c=>c.arcana==='major').length;
-  const topicActions={
-    love:[
-      '丟一個小而清楚的訊號或問題，然後觀察對方是否也願意往前一步；感情可以浪漫，但不要只靠心電感應。',
-      '把你真正需要的回應說清楚，再看對方的持續行動。偶爾秒回是煙火，穩定出現才比較像電力公司。',
-      '安排一次低壓、能自然交談的互動，讓關係接受現實測試；腦內戀愛很省車錢，但不一定到得了目的地。'
-    ],
-    career:[
-      '把問題縮成一個今天能完成的動作，定下期限並留下成果；忙得像陀螺不等於真的有前進。',
-      '找一位關鍵人物確認優先順序、責任和成功標準，別讓「大家應該都知道」成為專案的都市傳說。',
-      '先做一個小版本或草稿，用真實回饋修正方向；完美若永遠沒交付，只是穿西裝的拖延。'
-    ],
-    money:[
-      '把金額、期限、必要性和最壞情境寫下來，至少隔一晚再決定；購物車不會因為寂寞而過期。',
-      '先補最明顯的漏洞，再談加碼或投資；財務自由通常先從不讓錢包自由落體開始。',
-      '設定一個可承受上限並保留緩衝，不用為了證明勇敢，讓下個月的自己打電話來客訴。'
-    ],
-    general:[
-      '選一個最能改善現況的小動作，在二十四小時內完成；宇宙可以給提示，但待辦事項還是得你按完成。',
-      '把可控制、需等待、該放下的事分成三欄，先處理第一欄；別一次應徵全宇宙的客服。',
-      '用一個小實驗驗證你的想法，設定觀察期限後再評估；先收資料，別急著替第一集寫大結局。'
-    ]
-  };
-  const first=chooseVariant(topicActions[topic],11);
-  const second=profile
-    ? `這組牌的${suit}偏多，先把重點放在${profile[topic]}。${profile.focus}是主菜，其他腦補先放旁邊當香菜。`
-    : majors>=2
-      ? `大阿爾克那比例高，先確認這件事碰到的是價值、界線還是人生方向；別只修表面劇情，底層設定也要更新。`
-      : `四張牌沒有單一花色壓倒性主導，請同時檢查感受、想法與現實條件；只開一個視窗，很容易漏看系統通知。`;
-  const third=isUp(advice)
-    ? `最後照「${advice.zh}」正位行動：把「${coreMeaning(advice)}」化成一件可觀察的小事，並看「${dynamic.zh}」所代表的現況是否真的改善。牌給方向，結果還是看現實有沒有上班。`
-    : `最後照「${advice.zh}」逆位踩煞車：先處理「${coreMeaning(advice)}」的失衡，再決定是否推進。現在有${4-ups}張逆位，硬衝只會讓內耗拿到加班費。`;
-  return [first,second,third];
-}
-function buildAdviceIntro(){
-  const intros={
-    love:'這組牌不替誰頒發「命中注定」獎盃；它要你看清互相回應、界線和實際行動。',
-    career:'這組牌不負責替老闆寫加薪信，但會幫你把能控制的下一步抓出來。',
-    money:'這組牌可以提醒風險，不能代替預算表；浪漫留給人生，數字還是請誠實。',
-    general:'這組牌像一位嘴巴有點壞、方向感卻不錯的朋友：不替你決定，但會把下一步照亮。'
-  };
-  return intros[topic];
+  const punchline={
+    love:uprightCount>=2?'簡單說：有戲，但先別把預告片直接剪成大結局。':'簡單說：目前訊號有點差，腦補再大聲也不會自動變成雙向。',
+    career:uprightCount>=2?'簡單說：局面能動，但真正升級的是方向，不是忙碌音效。':'簡單說：先別把加班當成進度條，它有時只是螢幕保護程式。',
+    money:uprightCount>=2?'簡單說：機會可以看，錢包仍要保持清醒，不要讓它酒後駕駛。':'簡單說：現在比較適合看清條件，別讓衝動替信用卡主持會議。',
+    general:uprightCount>=2?'簡單說：門有打開，但腳還是要自己跨，宇宙不提供代走服務。':'簡單說：現在霧比較厚，先看清路，別急著跟命運比誰踩油門快。'
+  }[topic];
+  return `${meTone}；${themTone}。${dynamicTone}。${adviceTone}。${punchline}`;
 }
 
 function buildAnalysis(){
@@ -493,22 +441,23 @@ function buildAnalysis(){
     money:['你目前面對金錢與風險的狀態','市場、合作方或現實條件的回應','財務局面的實際發展'],
     general:['你目前帶進問題的狀態','外在人物或環境的回應','事情現在的運作方式']
   }[topic];
-  const overall=`${questionFrame}第一張「${me.zh}」${orientationLabel(me)}代表${frames[0]}；第二張「${them.zh}」${orientationLabel(them)}反映${frames[1]}；第三張「${dynamic.zh}」${orientationLabel(dynamic)}描述${frames[2]}；第四張「${advice.zh}」${orientationLabel(advice)}則是這次最值得帶走的提醒。 ${orientationPattern()} ${majorPattern()}`;
+  const humor={love:'感情不是密室逃脫，不必每個眼神都解成摩斯密碼。',career:'工作不是靠忙碌音效過關，真正有用的是方向與回應。',money:'錢包沒有第六感，數字與條件還是要坐主桌。',general:'宇宙可以給提示，但它通常不幫忙代填人生選擇題。'}[topic];
+  const overall=`${questionFrame}「${me.zh}」${orientationLabel(me)}說明${frames[0]}；「${them.zh}」${orientationLabel(them)}反映${frames[1]}；「${dynamic.zh}」${orientationLabel(dynamic)}點出${frames[2]}；最後的「${advice.zh}」${orientationLabel(advice)}則替整組牌收尾。${orientationPattern()} ${majorPattern()} ${humor}`;
   const connections=[
     pairTransition(me,them,'我 ↔ 對方'),
-    `關係現況：${dynamic.zh}（${orientationLabel(dynamic)}）的核心是「${coreMeaning(dynamic)}」。`,
-    `建議方向：${advice.zh}（${orientationLabel(advice)}）把重點放在「${coreMeaning(advice)}」。`,
+    `現況牌「${dynamic.zh}」${orientationLabel(dynamic)}把焦點放在「${coreMeaning(dynamic)}」。`,
+    `收尾牌「${advice.zh}」${orientationLabel(advice)}則強調「${coreMeaning(advice)}」。`,
     suitPattern(),
     ...specialConnections()
   ].filter(Boolean).join(' ');
   const conclusion=relationshipConclusion();
-  return {overall,connections,conclusion,advice:buildAdviceIntro()};
+  return {overall,connections,conclusion};
 }
 
 function openChatGPTReading(){
   if(current.length!==4)return;
   const cardLines=current.map((c,i)=>`${positionZH[i]}：${c.zh}（${c.en}）${orientationLabel(c)}`).join('；');
-  const prompt=`請用繁體中文深入解讀我的四張關係塔羅牌。我的問題是：「${questionText}」。牌陣位置依序是：我／對方／關係現況／建議。${cardLines}。請分析雙方能量差異、目前互動核心、正逆位的影響、可能的關係盲點，以及具體但不武斷的行動建議。語氣可以自然、帶一點幽默，但不要把塔羅當成必然預言。`;
+  const prompt=`請用繁體中文深入解讀我的四張關係塔羅牌。我的問題是：「${questionText}」。牌陣位置依序是：我／對方／關係現況／建議。${cardLines}。請清楚分析雙方能量差異、目前互動核心、正逆位影響與可能盲點，語氣自然並帶一點幽默，但不要把塔羅當成必然預言。最後只給一段明確結論，不要另外列行動建議。`;
   const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
   window.open(url,'_blank','noopener,noreferrer');
 }
@@ -560,8 +509,7 @@ function wrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
 function buildShareCaption(){
   const cardLines=current.map((c,i)=>`${positionZH[i]}｜${c.zh} ${orientationLabel(c)}`).join('\n');
   const summary=$('conclusionText').textContent || buildAnalysis().conclusion;
-  const steps=adviceSteps();
-  return `River Tarot 四張關係牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n行動建議：\n1. ${steps[0]}\n2. ${steps[1]}\n3. ${steps[2]}\n\n#RiverTarot #塔羅 #TarotReading`;
+  return `River Tarot 四張關係牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n#RiverTarot #塔羅 #TarotReading`;
 }
 
 async function generateShareImage(showStatusMsg=false){
@@ -612,11 +560,9 @@ async function generateShareImage(showStatusMsg=false){
   ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
   ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('結論',86,732);
   ctx.fillStyle='#f2edf9'; ctx.font='23px sans-serif';
-  let y=wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),86,772,905,34,4);
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('行動建議',86,y+26);
-  ctx.fillStyle='#f2edf9'; ctx.font='22px sans-serif';
-  const steps=adviceSteps();
-  steps.forEach((t,idx)=>{y=wrapText(ctx,`${idx+1}. ${t}`,92,y+68,890,31,3);y+=8;});
+  wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),86,772,905,36,8);
+  ctx.fillStyle='#cbb7ea'; ctx.font='italic 23px serif';
+  ctx.fillText('牌不替你決定，但會把霧打亮。',86,1112);
   ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New, monospace';
   ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
   ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.9 · UPDATE 09',W-270,H-68);
@@ -707,13 +653,8 @@ function renderAnalysis(){
   $('analysisText').textContent=r.overall;
   $('comboText').textContent=r.connections;
   $('conclusionText').textContent=r.conclusion;
-  $('adviceText').innerHTML=renderAdviceHTML(r.advice, adviceSteps());
   $('readingAnalysis').classList.remove('hidden');
   prepareShareAsset();
-}
-
-function renderAdviceHTML(intro,steps){
-  return `<p class="advice-intro">${intro}</p><ol>${steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
 }
 
 

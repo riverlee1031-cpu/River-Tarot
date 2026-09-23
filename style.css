@@ -177,3 +177,20 @@
 @keyframes mysticFlash{0%,22%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-20deg)}48%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(8deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.8) rotate(18deg)}}
 @keyframes frontGlow{0%,35%{box-shadow:0 9px 18px #000}55%{box-shadow:0 0 12px #fff,0 0 28px rgba(197,116,239,.9),0 10px 20px #000}100%{box-shadow:0 9px 18px #000}}
 @media(prefers-reduced-motion:reduce){.result-spread .card,.result-spread .card.reveal-pop,.result-spread .card.reveal-pop::after,.result-spread .card.reveal-pop .card-front{animation:none!important}.card-inner{transition-duration:.01ms}}
+
+/* Clear result transition and icon-led follow-up actions. */
+#reading.reading-enter{animation:readingCurtain .72s cubic-bezier(.2,.75,.25,1) both}
+#reading.reading-enter .reading-topline{animation:readingHeaderIn .55s .12s ease-out both}
+.reading-analysis{grid-template-columns:repeat(2,1fr)}
+.analysis-box.conclusion{grid-column:1/-1;min-height:0;background:linear-gradient(135deg,rgba(96,65,45,.28),rgba(45,31,66,.34))}
+.analysis-box.conclusion p{font-size:17px}
+.action-button{display:flex;align-items:center;justify-content:center;gap:10px;text-align:left;min-height:68px}
+.action-button .action-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border:1px solid rgba(255,255,255,.38);border-radius:50%;background:rgba(4,7,12,.28);font-size:20px;line-height:1}
+.action-button strong,.action-button small{display:block}
+.action-button strong{font:700 13px/1.25 "Microsoft JhengHei","Courier New",sans-serif;letter-spacing:.04em}
+.action-button small{margin-top:4px;color:rgba(255,255,255,.7);font:11px/1.25 "Microsoft JhengHei",sans-serif;letter-spacing:0}
+.action-button:hover .action-icon{transform:rotate(-7deg) scale(1.08);box-shadow:0 0 12px rgba(221,177,255,.42)}
+@keyframes readingCurtain{from{opacity:0;filter:blur(6px);transform:translateY(16px) scale(.985)}to{opacity:1;filter:blur(0);transform:translateY(0) scale(1)}}
+@keyframes readingHeaderIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){.action-button{min-height:62px;gap:7px}.action-button .action-icon{flex-basis:28px;width:28px;height:28px;font-size:16px}.action-button strong{font-size:11px}.action-button small{font-size:9px}.analysis-box.conclusion p{font-size:15px}}
+@media(prefers-reduced-motion:reduce){#reading.reading-enter,#reading.reading-enter .reading-topline{animation:none!important}}

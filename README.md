@@ -32,5 +32,6 @@ https://github.com/riverlee1031-cpu/River-Tarot
 - Keeps the ME / THEM / CURRENT DYNAMIC / ADVICE four-card spread and all existing media, mobile, ChatGPT and sharing features.
 - Adds a short plain-language explanation for every upright or reversed card based on the traditional 78-card meaning.
 - Expands the combined reading across card positions, orientations, Major Arcana count and suit balance.
-- Generates three practical, lightly humorous action steps that vary by topic, card mix and advice card.
+- Produces a clear, lightly humorous combined reading and a single focused conclusion without a separate action-advice list.
 - Adds a lightweight four-card reveal animation with staggered entrance, flip, lift and a short mystic glow.
+- Adds a short result-page transition and icon-led labels for redraw, ChatGPT, sharing and starting a new question.
