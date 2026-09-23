@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090b12">
 <title>RIVER TAROT v1.9</title>
-<link rel="stylesheet" href="style.css?v=1.9-action-glow">
+<link rel="stylesheet" href="style.css?v=1.9-soft-actions">
 </head>
 <body>
 <div class="crt" aria-hidden="true"></div>
@@ -130,10 +130,10 @@
         </section>
 
         <div class="reading-actions four-actions">
-          <button id="chooseAgainBtn" class="primary-btn action-button" type="button"><span class="action-icon" aria-hidden="true">↻</span><span><strong>重新抽牌</strong><span class="action-en" lang="en">DRAW AGAIN</span></span></button>
-          <button id="askChatGPTBtn" class="chatgpt-btn action-button" type="button"><span class="action-icon" aria-hidden="true">✦</span><span><strong>ChatGPT 深度解牌</strong><span class="action-en" lang="en">ASK CHATGPT</span></span></button>
-          <button id="shareReadingBtn" class="share-btn ig action-button" type="button"><span class="action-icon" aria-hidden="true">⇧</span><span><strong>分享解牌</strong><span class="action-en" lang="en">SHARE READING</span></span></button>
-          <button id="newQuestionBottomBtn" class="secondary-btn action-button" type="button"><span class="action-icon" aria-hidden="true">＋</span><span><strong>新的問題</strong><span class="action-en" lang="en">NEW QUESTION</span></span></button>
+          <button id="chooseAgainBtn" class="primary-btn action-button" type="button"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6 7a7 7 0 0 1 12-1l2 6M4 12l2 6a7 7 0 0 0 12-1"/></svg></span><span><strong>重新抽牌</strong><span class="action-en" lang="en">DRAW AGAIN</span><small>保留這個問題<br>重新抽取四張牌</small></span></button>
+          <button id="askChatGPTBtn" class="chatgpt-btn action-button" type="button"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M20 11a8 8 0 0 1-8 8H8l-5 3 1-6a8 8 0 1 1 16-5Z"/><path d="M8 10h8M8 14h5"/></svg></span><span><strong>ChatGPT 深度解牌</strong><span class="action-en" lang="en">ASK CHATGPT</span><small>帶著這組牌<br>深入聊聊解讀</small></span></button>
+          <button id="shareReadingBtn" class="share-btn ig action-button" type="button"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 16V3m-4 4 4-4 4 4M5 12v8h14v-8"/></svg></span><span><strong>分享解牌</strong><span class="action-en" lang="en">SHARE READING</span><small>製作解牌圖片<br>分享或儲存收藏</small></span></button>
+          <button id="newQuestionBottomBtn" class="secondary-btn action-button" type="button"><span class="action-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M12 8v8m-4-4h8"/></svg></span><span><strong>新的問題</strong><span class="action-en" lang="en">NEW QUESTION</span><small>回到占卜首頁<br>開始新的提問</small></span></button>
         </div>
         <div id="shareStatus" class="status share-status"></div>
         <canvas id="shareCanvas" width="1080" height="1350" hidden></canvas>
@@ -171,6 +171,6 @@
   </span>
 </button>
 
-<script src="app.js?v=1.9-action-glow"></script>
+<script src="app.js?v=1.9-soft-actions"></script>
 </body>
 </html>

@@ -229,26 +229,11 @@
 .reading-actions .action-button:active::after{transform:translateX(130%)}
 .reading-actions .action-button:active .action-icon{transform:rotate(-12deg) scale(1.12);box-shadow:0 0 15px #ddb1ff99}
 
-/* Give the two primary follow-up actions a visible, continuous glow. */
-#askChatGPTBtn{--action-glow:115,239,208;border-color:#b2f5df}
-#shareReadingBtn{--action-glow:216,143,255;border-color:#edbaff}
-#askChatGPTBtn,#shareReadingBtn{
-  overflow:visible;z-index:1;
-  box-shadow:0 0 12px rgba(var(--action-glow),.45),0 0 26px rgba(var(--action-glow),.2),inset 0 0 13px rgba(var(--action-glow),.15);
-}
-#askChatGPTBtn::before,#shareReadingBtn::before{
-  content:"";position:absolute;inset:-3px;z-index:-1;pointer-events:none;
-  border:1px solid rgba(var(--action-glow),.65);
-  box-shadow:0 0 14px rgba(var(--action-glow),.65),0 0 30px rgba(var(--action-glow),.35);
-  animation:actionGlowBreathe 2.4s ease-in-out infinite;
-}
-#askChatGPTBtn::after,#shareReadingBtn::after{inset:0;transform:none;background:linear-gradient(110deg,transparent,rgba(var(--action-glow),.22),transparent);opacity:0;transition:opacity .18s ease}
-#askChatGPTBtn .action-icon,#shareReadingBtn .action-icon{border-color:rgba(var(--action-glow),.8);box-shadow:0 0 13px rgba(var(--action-glow),.5);text-shadow:0 0 9px rgba(var(--action-glow),.9)}
-#askChatGPTBtn:active,#shareReadingBtn:active{box-shadow:0 0 22px rgba(var(--action-glow),.85),0 0 38px rgba(var(--action-glow),.5),inset 0 0 20px rgba(var(--action-glow),.3)}
-#askChatGPTBtn:active::after,#shareReadingBtn:active::after,#askChatGPTBtn:focus-visible::after,#shareReadingBtn:focus-visible::after{opacity:1}
-@media(hover:hover){
-  #askChatGPTBtn:hover,#shareReadingBtn:hover{box-shadow:0 0 20px rgba(var(--action-glow),.8),0 0 36px rgba(var(--action-glow),.45),inset 0 0 18px rgba(var(--action-glow),.2)}
-  #askChatGPTBtn:hover::after,#shareReadingBtn:hover::after{opacity:1;transform:none}
-}
-@keyframes actionGlowBreathe{0%,100%{opacity:.35}50%{opacity:.95}}
-@media(prefers-reduced-motion:reduce){#askChatGPTBtn::before,#shareReadingBtn::before{animation:none;opacity:.65}}
+/* Subtle feedback appears on hover, focus or touch, rather than glowing at rest. */
+.reading-actions .action-button{box-shadow:none}
+.reading-actions .action-button::after{display:none}
+.reading-actions .action-button:active,.reading-actions .action-button:focus-visible{filter:brightness(1.06);box-shadow:0 0 12px rgba(188,128,225,.28);transform:translateY(-1px)}
+@media(hover:hover){.reading-actions .action-button:hover{filter:brightness(1.06);box-shadow:0 0 12px rgba(188,128,225,.28);transform:translateY(-1px)}}
+.reading-actions .action-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.reading-actions .action-button:hover .action-icon,.reading-actions .action-button:active .action-icon{transform:none;box-shadow:0 0 7px rgba(221,177,255,.24)}
+.reading-actions .action-button small{font:11px/1.5 "Microsoft JhengHei",sans-serif;color:#ded3e5;margin-top:5px}
