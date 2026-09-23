@@ -209,3 +209,22 @@
 }
 
 .result-spread .card-inner{transition:transform .75s cubic-bezier(.2,.65,.3,1);-webkit-transition:-webkit-transform .75s cubic-bezier(.2,.65,.3,1)}
+
+/* Each mobile slot fills the same grid track, independent of label length. */
+@media(max-width:650px){
+  .result-spread .slot{width:100%;max-width:190px;min-width:0;justify-self:center}
+  .result-spread .card{display:block;width:100%;max-width:none;height:auto;aspect-ratio:2/3;margin-inline:auto}
+}
+
+/* Shared button feedback for mouse, keyboard and touch. */
+.reading-actions .action-button{position:relative;overflow:hidden;isolation:isolate;touch-action:manipulation;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}
+.reading-actions .action-button::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 25%,rgba(255,235,255,.28) 50%,transparent 75%);transform:translateX(-130%);transition:transform .5s ease}
+.action-button .action-icon{transition:transform .2s ease,box-shadow .2s ease}
+.reading-actions .action-button:focus-visible{outline:2px solid #e8c8ff;outline-offset:3px;box-shadow:0 0 18px #b06fd080}
+@media(hover:hover){
+  .reading-actions .action-button:hover{transform:translateY(-3px);filter:brightness(1.14);box-shadow:0 5px 18px #b06fd066}
+  .reading-actions .action-button:hover::after{transform:translateX(130%)}
+}
+.reading-actions .action-button:active{transform:translateY(1px) scale(.97);filter:brightness(1.25);box-shadow:0 0 20px #ce95ed99,inset 0 0 14px #ffffff25}
+.reading-actions .action-button:active::after{transform:translateX(130%)}
+.reading-actions .action-button:active .action-icon{transform:rotate(-12deg) scale(1.12);box-shadow:0 0 15px #ddb1ff99}
