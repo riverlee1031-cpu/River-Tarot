@@ -196,10 +196,7 @@
 @media(prefers-reduced-motion:reduce){#reading.reading-enter,#reading.reading-enter .reading-topline{animation:none!important}}
 
 /* Bilingual results and stable card faces on mobile Safari. */
-.heading-en{display:block;margin-top:5px;font:12px/1.5 "Courier New",monospace;letter-spacing:1px}
-.analysis-box .reading-en{border-top:1px solid rgba(164,209,197,.25);padding-top:12px;color:#d3c9df;font:15px/1.75 Georgia,serif;letter-spacing:0;overflow-wrap:anywhere}
 .action-en{display:block;margin-top:4px;font:700 11px/1.4 "Courier New",monospace}
-.action-button small span{display:block;margin-top:3px}
 .action-button>span:last-child{min-width:0;overflow-wrap:anywhere}
 .result-spread .card{padding:0;perspective:1000px;-webkit-perspective:1000px;touch-action:manipulation}
 .result-spread .card-inner{position:absolute;inset:0;width:100%;height:100%;-webkit-transform-style:preserve-3d;transform-style:preserve-3d}
@@ -208,10 +205,9 @@
 @media(max-width:650px){
   .result-spread .card{width:100%;max-width:190px;aspect-ratio:2/3}
   .result-spread{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .analysis-box .reading-en{font-size:14px;line-height:1.7}
   .action-button strong{font-size:13px}
   .action-button small{font-size:11px;line-height:1.4}
-  .action-button{min-height:104px}
+  .action-button{min-height:68px}
   /* Avoid a blurred 3D ancestor while the card faces are animating. */
   #reading.reading-enter{animation:readingMobileIn .9s ease-out both}
 }
