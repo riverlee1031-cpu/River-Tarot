@@ -156,6 +156,7 @@ function bindUI(){
     document.querySelectorAll('.topic').forEach(x=>x.classList.toggle('active',x===btn));
   }));
   questionInput.addEventListener('input',()=>{
+    if(questionInput.value.length>50) questionInput.value=questionInput.value.slice(0,50);
     questionText=questionInput.value.trim().slice(0,50);
     questionCount.textContent=`${questionInput.value.length} / 50`;
     beginBtn.disabled=questionText.length===0;
