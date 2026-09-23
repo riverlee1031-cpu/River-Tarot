@@ -172,7 +172,7 @@ function show(id){
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
   if(typeof homeNav!=='undefined') homeNav.classList.toggle('active',id==='home');
   if(typeof readingNav!=='undefined') readingNav.classList.toggle('active',id==='choose'||id==='reading');
-  window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:id==='reading'?'instant':'smooth'});
 }
 
 function shuffle(array){
@@ -647,12 +647,48 @@ async function shareReading(){
   }
 }
 
+function buildEnglishAnalysis(){
+  const [me,them,dynamic,advice]=current;
+  const label=c=>`${c.en} (${c.orientation})`;
+  const meaning=c=>{
+    const ranks={Two:'2',Three:'3',Four:'4',Five:'5',Six:'6',Seven:'7',Eight:'8',Nine:'9',Ten:'10'};
+    const meanings=c.arcana==='major'?majorMeaning[c.slug]:minorMeaning[suitEN[c.suit]]?.[ranks[c.rank]||c.rank];
+    return meanings?.[isUp(c)?0:1] || 'reflection on the situation';
+  };
+  const frames={love:['your feelings and expectations','the other person’s response','this relationship'],career:['your position and abilities at work','the response from people, teams or your environment','this work situation'],money:['your attitude toward money and risk','the market, partners or practical conditions','this financial situation'],general:['what you bring to the question','the response from other people or your environment','your current situation']}[topic];
+  const ups=current.filter(isUp).length;
+  const patterns=[
+    'All four cards are reversed: information, pressure or an uneven pace may be getting in the way. Address what is happening now before defining the outcome.',
+    'Only one card is upright: focus on that clearest opening instead of trying to push everything forward at once.',
+    'Two upright and two reversed cards suggest both room to move and real resistance. The conditions and timing have not fully lined up yet.',
+    'Three upright cards and one reversed card suggest available momentum, with one sticking point that needs attention.',
+    'All four cards are upright: there is room to work with, provided your intentions, conditions and actions align.'
+  ];
+  const majors=current.filter(c=>c.arcana==='major').length;
+  const majorText=majors>=3?`${majors} Major Arcana cards point to deeper themes involving values, boundaries or life stages.`:majors===2?'Two Major Arcana cards suggest a meaningful longer-term pattern.':majors===1?'The single Major Arcana card is an anchor: notice which position it occupies.':'All four are Minor Arcana cards, placing the focus on everyday interactions and habits you can adjust.';
+  const humor={love:'Love is not an escape room; not every glance needs decoding.',career:'Busy sound effects do not clear the level. Direction and feedback do.',money:'Your wallet has no sixth sense. Let the numbers and terms have a seat at the table.',general:'The universe may offer hints, but it rarely fills in life’s multiple-choice questions for you.'}[topic];
+  const overall=`${questionText?`For your question “${questionText}”: `:''}${label(me)} reflects ${frames[0]}; ${label(them)} reflects ${frames[1]}; ${label(dynamic)} describes the current pattern in ${frames[2]}; ${label(advice)} closes the spread. ${patterns[ups]} ${majorText} ${humor}`;
+  const relation=isUp(me)?(isUp(them)?'continues into':'meets resistance in'):(isUp(them)?'begins to loosen and shifts toward':'remains unresolved and develops into');
+  const counts={};current.filter(c=>c.arcana==='minor').forEach(c=>{const suit=suitEN[c.suit];counts[suit]=(counts[suit]||0)+1;});
+  const suits=Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const suitText=suits[0]?.[1]>=2?`${suits[0][1]} cards belong to ${suits[0][0]}, emphasizing ${suitProfiles[suits[0][0]].focus}.`:suits.length>=2?`The spread combines ${suits[0][0]} and ${suits[1][0]}, so more than one need deserves attention.`:'';
+  const slugs=new Set(current.map(c=>c.slug));
+  const connections=[`ME ↔ THEM: ${label(me)} brings ${meaning(me)}, which ${relation} ${meaning(them)} in ${label(them)}.`,`CURRENT DYNAMIC: ${label(dynamic)} highlights ${meaning(dynamic)}.`,`ADVICE: ${label(advice)} emphasizes ${meaning(advice)}.`,suitText,...specialCombos.filter(x=>slugs.has(x[0])&&slugs.has(x[1])).map(x=>x[2])].filter(Boolean).join(' ');
+  const jokes={love:ups>=2?'There may be a story here, but do not edit the trailer into the grand finale yet.':'The signal is weak; imagining it louder does not make it mutual.',career:ups>=2?'There is room to move. Upgrade your direction, not your busy sound effects.':'Overtime is not always a progress bar. Sometimes it is a screensaver.',money:ups>=2?'Explore the opportunity, but keep your wallet sober.':'Read the conditions first. Do not let impulse chair the credit-card meeting.',general:ups>=2?'The door may be open, but you still have to walk through it.':'The fog is thick. Find the road before racing fate to the accelerator.'}[topic];
+  const conclusion=`${capitalize(frames[0])} ${isUp(me)?'seem relatively clear and ready to engage':'may involve hesitation, reservations or inner friction'}; ${frames[1]} ${isUp(them)?'appear more open or offer room to work with':'may be delayed, guarded or facing obstacles'}. ${label(dynamic)} ${isUp(dynamic)?`suggests something in ${frames[2]} can still develop`:'asks you to identify imbalance or misunderstanding before forcing an outcome'}. ${label(advice)} ${isUp(advice)?'invites the healthiest, most mature expression of its meaning':'asks you to avoid overdoing things and revise old patterns before pushing ahead'}. ${jokes}`;
+  return {overall,connections,conclusion};
+}
+
 function renderAnalysis(){
-  $('revealPrompt').textContent='四張牌已全部翻開，以下為完整中文解析。';
+  $('revealPrompt').textContent='四張牌已全部翻開 · All four cards revealed. Your bilingual reading is below.';
   const r=buildAnalysis();
   $('analysisText').textContent=r.overall;
   $('comboText').textContent=r.connections;
   $('conclusionText').textContent=r.conclusion;
+  const english=buildEnglishAnalysis();
+  $('analysisTextEn').textContent=english.overall;
+  $('comboTextEn').textContent=english.connections;
+  $('conclusionTextEn').textContent=english.conclusion;
   $('readingAnalysis').classList.remove('hidden');
   prepareShareAsset();
 }
