@@ -176,7 +176,7 @@
 @keyframes revealLift{0%,100%{transform:translateY(0) scale(1)}42%{transform:translateY(-9px) scale(1.025)}}
 @keyframes mysticFlash{0%,22%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(-20deg)}48%{opacity:1;transform:translate(-50%,-50%) scale(1.25) rotate(8deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.8) rotate(18deg)}}
 @keyframes frontGlow{0%,35%{box-shadow:0 9px 18px #000}55%{box-shadow:0 0 12px #fff,0 0 28px rgba(197,116,239,.9),0 10px 20px #000}100%{box-shadow:0 9px 18px #000}}
-@media(prefers-reduced-motion:reduce){.result-spread .card,.result-spread .card.reveal-pop,.result-spread .card.reveal-pop::after,.result-spread .card.reveal-pop .card-front{animation:none!important}.card-inner{transition-duration:.01ms}}
+@media(prefers-reduced-motion:reduce){.result-spread .card,.result-spread .card.reveal-pop,.result-spread .card.reveal-pop::after,.result-spread .card.reveal-pop .card-front{animation:none!important}.card-inner{transition:transform .75s cubic-bezier(.2,.65,.3,1)}}
 
 /* Clear result transition and icon-led follow-up actions. */
 #reading.reading-enter{animation:readingCurtain .72s cubic-bezier(.2,.75,.25,1) both}
@@ -213,3 +213,6 @@
 }
 @keyframes readingMobileIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){#reading.reading-enter{animation:none!important}}
+
+/* A deliberate tap still flips the card when reduced motion disables decoration. */
+.result-spread .card-inner{transition:transform .75s cubic-bezier(.2,.65,.3,1);-webkit-transition:-webkit-transform .75s cubic-bezier(.2,.65,.3,1)}
