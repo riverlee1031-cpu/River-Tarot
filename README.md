@@ -33,3 +33,4 @@ https://github.com/riverlee1031-cpu/River-Tarot
 - Adds a short plain-language explanation for every upright or reversed card based on the traditional 78-card meaning.
 - Expands the combined reading across card positions, orientations, Major Arcana count and suit balance.
 - Generates three practical, lightly humorous action steps that vary by topic, card mix and advice card.
+- Adds a lightweight four-card reveal animation with staggered entrance, flip, lift and a short mystic glow.

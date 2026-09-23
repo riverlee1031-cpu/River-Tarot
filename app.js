@@ -293,13 +293,18 @@ function revealReading(){
 
 function renderSpread(){
   const subtitles=['YOUR ENERGY','THEIR ENERGY','WHAT EXISTS BETWEEN YOU','WHAT HELPS MOST'];
-  spread.innerHTML=current.map((c,i)=>`<div class="slot"><button class="card ${c.revealed?'revealed':''}" data-i="${i}" aria-label="Reveal ${positions[i]} card"><span class="card-inner"><span class="card-face card-back"></span><span class="card-face card-front ${c.orientation==='reversed'?'reversed':''}"><img src="${c.image}" alt="${c.en}"></span></span></button><h4>${positions[i]}</h4><small>${subtitles[i]}</small></div>`).join('');
+  spread.innerHTML=current.map((c,i)=>`<div class="slot"><button class="card ${c.revealed?'revealed':''}" data-i="${i}" aria-label="Reveal ${positions[i]} card" aria-pressed="${c.revealed}" style="--reveal-order:${i}"><span class="card-inner"><span class="card-face card-back"></span><span class="card-face card-front ${c.orientation==='reversed'?'reversed':''}"><img src="${c.image}" alt="${c.en}"></span></span></button><h4>${positions[i]}</h4><small>${subtitles[i]}</small></div>`).join('');
   spread.querySelectorAll('.card').forEach(el=>el.addEventListener('click',()=>turnCard(Number(el.dataset.i))));
 }
 
 function turnCard(i){
-  current[i].revealed=true;
-  renderSpread();
+  const cardButton=spread.querySelector(`.card[data-i="${i}"]`);
+  if(!current[i].revealed){
+    current[i].revealed=true;
+    cardButton?.classList.add('revealed','reveal-pop');
+    cardButton?.setAttribute('aria-pressed','true');
+    window.setTimeout(()=>cardButton?.classList.remove('reveal-pop'),850);
+  }
   showCardDetail(i);
   if(current.every(c=>c.revealed)) renderAnalysis();
 }
