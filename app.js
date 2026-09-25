@@ -483,25 +483,18 @@ function roundRect(ctx,x,y,w,h,r){
 }
 
 function wrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
-  const content=String(text||'');
-  const chars=[...content];
-  let line='';
-  const lines=[];
-  for(let i=0;i<chars.length;i++){
-    const test=line+chars[i];
-    if(ctx.measureText(test).width>maxWidth && line){
-      lines.push(line);
-      line=chars[i];
-      if(maxLines && lines.length>=maxLines-1){
-        const rest=chars.slice(i+1).join('');
-        if(rest) line=line+'…';
-        break;
-      }
-    }else{
-      line=test;
-    }
+  const lines=[];let line='';
+  for(const char of String(text||'')){
+    if(ctx.measureText(line+char).width>maxWidth && line){lines.push(line);line=char;}
+    else line+=char;
   }
-  if(line && (!maxLines || lines.length<maxLines)) lines.push(line);
+  if(line)lines.push(line);
+  if(maxLines && lines.length>maxLines){
+    lines.length=maxLines;
+    let last=lines[maxLines-1];
+    while(last && ctx.measureText(last+'…').width>maxWidth)last=last.slice(0,-1);
+    lines[maxLines-1]=last+'…';
+  }
   lines.forEach((ln,i)=>ctx.fillText(ln,x,y+i*lineHeight));
   return y+Math.max(1,lines.length)*lineHeight;
 }
@@ -520,52 +513,58 @@ async function generateShareImage(showStatusMsg=false){
   if(showStatusMsg) $('shareStatus').textContent='正在準備分享圖…';
   const canvas=$('shareCanvas');
   const ctx=canvas.getContext('2d');
+  canvas.width=1080; canvas.height=1920;
   const W=canvas.width,H=canvas.height;
-  ctx.clearRect(0,0,W,H);
-  const bg=ctx.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,'#0b1020'); bg.addColorStop(.55,'#12152f'); bg.addColorStop(1,'#1b1031');
-  ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-  ctx.strokeStyle='rgba(196,124,237,.55)'; ctx.lineWidth=4; ctx.strokeRect(22,22,W-44,H-44);
-
-  ctx.fillStyle='#efe7ff'; ctx.font='bold 58px Georgia, serif'; ctx.textAlign='left';
-  ctx.fillText('RIVER TAROT',74,96);
-  ctx.fillStyle='#cbb7ea'; ctx.font='28px Courier New, monospace';
-  ctx.fillText(`四張關係牌陣  ·  ${topicZH[topic]}`,76,142);
-  ctx.fillStyle='#e7d9ee'; ctx.font='23px sans-serif';
-  wrapText(ctx,`問題：${questionText}`,76,178,900,30,2);
-  ctx.fillStyle='#dcd2ef'; ctx.font='22px serif';
-  ctx.fillText(new Date().toLocaleDateString('zh-TW'),W-220,96);
-
-  const imgs=[];
-  for(const c of current){ imgs.push(await loadImg(c.image)); }
-  const cardW=190, cardH=285, topY=235, xs=[70,325,580,835];
+  const bg=ctx.createLinearGradient(0,0,W,H);
+  bg.addColorStop(0,'#100d26');bg.addColorStop(.55,'#211632');bg.addColorStop(1,'#080e19');
+  ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='#9775b6';ctx.lineWidth=2;ctx.strokeRect(32,32,W-64,H-64);
+  ctx.strokeStyle='#483752';ctx.strokeRect(44,44,W-88,H-88);
+  // Pixel stars, deliberately stable between exports.
+  for(let i=0;i<55;i++){
+    ctx.fillStyle=i%3?'#715580':'#d6b2db';
+    ctx.fillRect(65+(i*173)%950,95+(i*97)%1670,i%4?3:5,i%4?3:5);
+  }
+  ctx.fillStyle='#b9a2c8';ctx.font='22px "Courier New",monospace';
+  ctx.fillText('NIGHT READING  /  FOUR-CARD SPREAD',78,194);
+  ctx.fillStyle='#f2deed';ctx.font='bold 74px Georgia,serif';
+  ctx.fillText('RIVER TAROT',74,280);
+  ctx.fillStyle='#c89acb';ctx.font='26px sans-serif';
+  ctx.fillText(`${topicZH[topic]}  /  ${new Date().toLocaleDateString('zh-TW')}`,78,332);
+  const scene=await loadImg('assets/river-cat-vinyl.gif');
+  ctx.drawImage(scene,662,367,336,448);
+  ctx.fillStyle='#9fd4c5';ctx.font='22px "Courier New",monospace';ctx.fillText('MY QUESTION',78,439);
+  ctx.fillStyle='#f2deed';ctx.font='34px sans-serif';
+  wrapText(ctx,questionText,78,500,534,49,6);
+  ctx.fillStyle='#a08aa9';ctx.font='24px serif';
+  ctx.fillText('在夜色裡，聽見自己的答案。',78,773);
+  ctx.fillStyle='#bfa4ca';ctx.font='22px "Courier New",monospace';
+  ctx.fillText('01 — THE CARDS',78,860);
+  const imgs=await Promise.all(current.map(c=>loadImg(c.image)));
+  const cardW=204,cardH=306,topY=904;
   imgs.forEach((img,i)=>{
-    const x=xs[i], y=topY+(i===1?0:18);
-    ctx.save();
-    ctx.translate(x+cardW/2,y+cardH/2);
-    ctx.rotate(i===0?-0.055:i===3?0.055:0);
-    if(current[i].orientation==='reversed') ctx.rotate(Math.PI);
-    ctx.shadowColor='rgba(0,0,0,.45)'; ctx.shadowBlur=18;
-    ctx.fillStyle='#e8d7b8'; roundRect(ctx,-cardW/2,-cardH/2,cardW,cardH,12); ctx.fill();
-    ctx.drawImage(img,-cardW/2+8,-cardH/2+8,cardW-16,cardH-16);
-    ctx.restore();
-    ctx.fillStyle='#f3ebff'; ctx.font='bold 27px Courier New, monospace'; ctx.textAlign='center';
-    ctx.fillText(positionZH[i],x+cardW/2,topY+cardH+62);
-    ctx.fillStyle='#cfb3ff'; ctx.font='22px sans-serif';
-    ctx.fillText(`${current[i].zh} ${orientationLabel(current[i])}`,x+cardW/2,topY+cardH+95);
+    const x=78+i*240;
+    ctx.save();ctx.translate(x+cardW/2,topY+cardH/2);
+    ctx.shadowColor='#00000080';ctx.shadowBlur=18;
+    ctx.fillStyle='#d4bdd2';ctx.fillRect(-cardW/2-4,-cardH/2-4,cardW+8,cardH+8);
+    ctx.shadowBlur=0;
+    if(current[i].orientation==='reversed')ctx.rotate(Math.PI);
+    ctx.drawImage(img,-cardW/2,-cardH/2,cardW,cardH);ctx.restore();
+    ctx.textAlign='center';ctx.fillStyle='#a7d5c8';ctx.font='23px sans-serif';
+    ctx.fillText(positionZH[i],x+cardW/2,1251);
+    ctx.fillStyle='#f0dfee';ctx.font='24px sans-serif';
+    ctx.fillText(current[i].zh,x+cardW/2,1288,222);
+    ctx.fillStyle='#b49bc4';ctx.font='20px sans-serif';ctx.fillText(orientationLabel(current[i]),x+cardW/2,1320);
   });
-
-  ctx.textAlign='left';
-  ctx.fillStyle='rgba(10,12,22,.64)'; roundRect(ctx,64,690,952,485,18); ctx.fill();
-  ctx.strokeStyle='rgba(145,111,194,.7)'; ctx.stroke();
-  ctx.fillStyle='#b7f2dd'; ctx.font='bold 28px sans-serif'; ctx.fillText('結論',86,732);
-  ctx.fillStyle='#f2edf9'; ctx.font='23px sans-serif';
-  wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),86,772,905,36,8);
-  ctx.fillStyle='#cbb7ea'; ctx.font='italic 23px serif';
-  ctx.fillText('牌不替你決定，但會把霧打亮。',86,1112);
-  ctx.fillStyle='#d5c5ec'; ctx.font='20px Courier New, monospace';
-  ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',76,H-68);
-  ctx.fillStyle='#c3a5ea'; ctx.fillText('v1.9 · UPDATE 09',W-270,H-68);
+  ctx.textAlign='left';ctx.fillStyle='#100f1ee8';ctx.fillRect(66,1370,948,330);
+  ctx.strokeStyle='#775f86';ctx.strokeRect(66,1370,948,330);
+  ctx.fillStyle='#a7d5c8';ctx.font='24px sans-serif';ctx.fillText('02 — 給此刻的你',90,1412);
+  ctx.fillStyle='#eee0f0';ctx.font='26px sans-serif';
+  wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),90,1462,895,39,6);
+  ctx.fillStyle='#c7b0d4';ctx.font='italic 24px serif';ctx.fillText('牌不替你決定，但會把霧打亮。',78,1760);
+  ctx.fillStyle='#9c87af';ctx.font='18px "Courier New",monospace';ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',78,1802);
+  // Fine CRT lines match the site without obscuring the reading.
+  ctx.fillStyle='rgba(0,0,0,.055)';for(let y=0;y<H;y+=6)ctx.fillRect(0,y,W,1);
 
   let blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png',1));
   if(!blob){
@@ -573,13 +572,16 @@ async function generateShareImage(showStatusMsg=false){
     const res=await fetch(dataUrl);
     blob=await res.blob();
   }
-  const filename=`river-tarot-${Date.now()}.png`;
+  const filename=`river-tarot-ig-story-${Date.now()}.png`;
   let file=null;
   try{ file=new File([blob],filename,{type:'image/png'}); }catch(e){ file=blob; file.name=filename; }
   if(window.__riverShareUrl) URL.revokeObjectURL(window.__riverShareUrl);
   const url=URL.createObjectURL(blob);
   window.__riverShareUrl=url;
   cachedShareAsset={blob,file,url,filename};
+  $('storyPreviewImage').src=url;
+  $('storyDownload').href=url;
+  $('storyDownload').download=filename;
   if(showStatusMsg) $('shareStatus').textContent='分享圖準備完成。';
   return cachedShareAsset;
 }
@@ -607,24 +609,29 @@ async function shareReading(){
     $('shareStatus').textContent='請先翻開四張牌，再分享。';
     return;
   }
+  $('storyPreview').hidden=false;
   const button=$('shareReadingBtn');
   button.disabled=true;
   $('shareStatus').textContent='正在準備分享…';
   try{
     let asset=cachedShareAsset;
-    if(!asset && shareAssetPromise) asset=await shareAssetPromise;
-    if(!asset) asset=await generateShareImage(false);
+    if(!asset){
+      asset=shareAssetPromise?await shareAssetPromise:await generateShareImage(false);
+      if(!asset) throw new Error('No share asset');
+      $('shareStatus').textContent='IG 限動圖片已準備好，請再按一次分享。';
+      return;
+    }
     if(!asset) throw new Error('No share asset');
     const text=buildShareCaption();
 
     // iPhone/iPad Safari: pre-generating the file keeps the share action reliable.
     if(navigator.share && asset.file){
-      const shareData={title:'River Tarot Reading',text,files:[asset.file]};
+      const shareData={files:[asset.file]};
       const canShare=!navigator.canShare || navigator.canShare({files:[asset.file]});
       if(canShare){
         try{
           await navigator.share(shareData);
-          $('shareStatus').textContent='分享視窗已開啟，可選 Instagram、訊息或「儲存影像」。';
+          $('shareStatus').textContent='已交給系統分享。請在 Instagram 選「限時動態」；若沒有此選項，請儲存圖片後從 IG 新增限動。';
           return;
         }catch(err){
           if(err && err.name==='AbortError'){
@@ -638,7 +645,7 @@ async function shareReading(){
 
     downloadShareAsset(asset);
     try{ if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(text); }catch(e){}
-    $('shareStatus').textContent='此瀏覽器無法直接叫出 IG；分享圖已下載，可直接從照片上傳到 Instagram。';
+    $('shareStatus').textContent='限動圖片已下載。開啟 Instagram → ＋ → 限時動態 → 選取剛儲存的圖片。';
   }catch(err){
     console.error(err);
     $('shareStatus').textContent='分享暫時失敗。請再按一次；若仍失敗，重新整理頁面後重試。';
