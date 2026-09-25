@@ -237,3 +237,9 @@
 .reading-actions .action-icon svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .reading-actions .action-button:hover .action-icon,.reading-actions .action-button:active .action-icon{transform:none;box-shadow:0 0 7px rgba(221,177,255,.24)}
 .reading-actions .action-button small{font:11px/1.5 "Microsoft JhengHei",sans-serif;color:#ded3e5;margin-top:5px}
+
+/* Topic icons and concise Chinese labels share one desktop/mobile layout. */
+.topic-icon{display:grid;place-items:center;width:40px;height:40px;line-height:1}
+.topic-icon svg{display:block;width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.topic-zh{display:block;margin-top:5px;font:500 14px/1.3 "Microsoft JhengHei",sans-serif;letter-spacing:2px}
+@media(max-width:650px){.topic-icon{width:30px;height:30px}.topic-icon svg{width:27px;height:27px}.topic-zh{font-size:13px;margin-top:3px}}
