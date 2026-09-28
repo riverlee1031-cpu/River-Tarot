@@ -250,5 +250,3 @@
 
 /* Keep short reading paragraphs readable on desktop and mobile. */
 #analysisText,#comboText{white-space:pre-line}
-.meaning-source{font-size:13px!important;line-height:1.6}
-.meaning-source a{color:inherit;text-underline-offset:3px}

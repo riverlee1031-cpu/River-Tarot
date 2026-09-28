@@ -1,4 +1,4 @@
-# RIVER TAROT v1.9 · UPDATE 09
+# RIVER TAROT v1.11 · UPDATE 11
 
 Retro 90s / CRT four-card relationship tarot web app.
 
@@ -35,3 +35,12 @@ https://github.com/riverlee1031-cpu/River-Tarot
 - Produces a clear, lightly humorous combined reading and a single focused conclusion without a separate action-advice list.
 - Adds a lightweight four-card reveal animation with staggered entrance, flip, lift and a short mystic glow.
 - Adds a short result-page transition and icon-led labels for redraw, ChatGPT, sharing and starting a new question.
+
+
+## v1.11 · RIVER contextual readings
+- `reading-engine.js` applies original editorial rules: card meaning, position, topic context, and a practical response. Both orientations are classified independently.
+- Work, relationship, money and general spreads use appropriate position labels. New-job and restaurant questions receive focused work context when explicitly present.
+- Conclusions combine card themes rather than treating upright/reversed counts as success scores. Details, result text and sharing use the same engine.
+- Removed the MOFA source requirement. The ChatGPT handoff follows the same interpretation style without requesting an external meaning website.
+- The site remains an offline, curated rule engine. It does not call an AI service or fully understand arbitrary questions; the ChatGPT button supports deeper free-form interpretation.
+- Check with `node scripts/check-readings.cjs` and `node --check app.js`.
