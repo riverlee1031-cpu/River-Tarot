@@ -1,3 +1,21 @@
+# RIVER TAROT v1.12 · Live AI preparation
+
+本分支已改成即時 AI 解牌，需要 OpenAI API 金鑰與 Node 後端才能啟用。尚未完成真實模型驗證，尚未取代線上版本。
+
+完整啟用步驟見 [SETUP-AI.md](SETUP-AI.md)。本機啟動：`node --env-file-if-exists=.env server/index.cjs`；測試：`node --test tests/reading.test.cjs`。
+
+- `server/reading.cjs`：RIVER 解牌指引、完整問題與牌組輸入、Structured Outputs、輸出驗證。
+- `server/index.cjs`：私密 API 金鑰、HTTP 服務、公開檔案白名單、單實例限流。
+- `reading-client.js`：非同步請求、取消、去重、錯誤與結果驗證。
+- `runtime-config.js`：公開後端網址設定，不能放金鑰。
+- `tests/reading-evals.json`：真實模型品質驗收案例。
+
+目前已移除站內規則式情境分析。AI 尚未設定或失敗時只顯示基本牌義和明確錯誤，不會替補成假 AI 結果。GitHub Pages 仍可承載前端，但無法單獨執行 Node 後端。
+
+---
+
+以下為舊版紀錄與既有網站資料。
+
 # RIVER TAROT v1.11 · UPDATE 11
 
 Retro 90s / CRT four-card relationship tarot web app.

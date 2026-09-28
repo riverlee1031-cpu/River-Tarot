@@ -6,6 +6,10 @@ let current = [];
 let shuffleTimer = null;
 let shareAssetPromise = null;
 let cachedShareAsset = null;
+const aiSession = RiverAI.createSession();
+let readingResult = null;
+let readingRevision = 0;
+let detailIndex = 0;
 
 const $ = (id)=>document.getElementById(id);
 let questionText = '';
@@ -19,11 +23,11 @@ const topicLabels = {
 };
 const topicTitles = { love:'LOVE', career:'CAREER', money:'MONEY', general:'GENERAL GUIDANCE' };
 const positions = ['ME','CONTEXT','CHALLENGE','ADVICE'];
-let positionZH = RiverReading.labels.love;
+let positionZH = RiverAI.labels.love;
 const orientationZH = {upright:'正位', reversed:'逆位'};
 const topicZH = {love:'感情', career:'工作', money:'財務', general:'整體'};
 async function init(){
-  cards = await fetch('tarot.json?v=1.11-river-reading').then(r=>r.json());
+  cards = await fetch('tarot.json?v=1.12-live-ai').then(r=>r.json());
   bindUI();
   updateClock();
   setInterval(updateClock,1000);
@@ -32,13 +36,13 @@ async function init(){
 function bindUI(){
   document.querySelectorAll('.topic').forEach(btn=>btn.addEventListener('click',()=>{
     topic=btn.dataset.topic;
-    positionZH=RiverReading.labels[topic];
+    positionZH=RiverAI.labels[topic];
     document.querySelectorAll('.topic').forEach(x=>x.classList.toggle('active',x===btn));
   }));
   questionInput.addEventListener('input',()=>{
-    if(questionInput.value.length>50) questionInput.value=questionInput.value.slice(0,50);
-    questionText=questionInput.value.trim().slice(0,50);
-    questionCount.textContent=`${questionInput.value.length} / 50`;
+    if(questionInput.value.length>300) questionInput.value=questionInput.value.slice(0,300);
+    questionText=questionInput.value.trim().slice(0,300);
+    questionCount.textContent=`${questionInput.value.length} / 300`;
     beginBtn.disabled=questionText.length===0;
     questionHint.textContent=questionText.length? '問題已收好。接下來交給你的直覺。':'先寫下問題，再讓牌開始說話。';
   });
@@ -51,11 +55,13 @@ function bindUI(){
   chooseClearBtn.addEventListener('click',()=>openSpread(true));
   chooseRevealBtn.addEventListener('click',revealReading);
   askChatGPTBtn.addEventListener('click',openChatGPTReading);
+  $('retryReadingBtn').addEventListener('click',renderAnalysis);
   shareReadingBtn.addEventListener('click',shareReading);
   chooseAgainBtn.addEventListener('click',()=>openSpread(true));
 }
 
 function show(id){
+  if(id==='home'){resetReading();current=[];}
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
   if(typeof homeNav!=='undefined') homeNav.classList.toggle('active',id==='home');
   if(typeof readingNav!=='undefined') readingNav.classList.toggle('active',id==='choose'||id==='reading');
@@ -70,13 +76,14 @@ function shuffle(array){
 
 function openSpread(isReshuffle=false){
   if(!isReshuffle){
-    questionText=(questionInput?.value||'').trim().slice(0,50);
+    questionText=(questionInput?.value||'').trim().slice(0,300);
     if(!questionText){
       questionInput?.focus();
-      questionHint.textContent='請先寫下你的問題（50字內）。';
+      questionHint.textContent='請先寫下你的問題（300字內）。';
       return;
     }
   }
+  resetReading();
   selected=[];
   shuffledDeck=shuffle(cards);
   chooseTopicBadge.textContent=topicLabels[topic];
@@ -200,23 +207,37 @@ function coreMeaning(c){
 }
 function orientationLabel(c){return orientationZH[c.orientation]||c.orientation;}
 
-function readingContext(){return RiverReading.context(topic,questionText);}
-function simpleMeaning(c){return c.plain?.[c.orientation] || coreMeaning(c);}
-function plainMeaning(c,i){return RiverReading.interpret(c,i,readingContext()).application;}
-
-function showCardDetail(i){
-  const c=current[i];
-  const reading=RiverReading.interpret(c,i,readingContext());
-  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${reading.label} · ${positions[i]}</p><h2>${c.zh} <small>${c.en}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>這張牌的意思</h3><p>${reading.meaning}</p><h3>對應你的問題</h3><p>${reading.application}</p>`;
+function resetReading(){
+  readingRevision++;
+  aiSession.reset();
+  readingResult=null;
+  cachedShareAsset=null;
+  shareAssetPromise=null;
+  if(window.__riverShareUrl){URL.revokeObjectURL(window.__riverShareUrl);window.__riverShareUrl=null;}
+  $('shareReadingBtn').disabled=true;
+  $('storyPreview').hidden=true;
+  $('shareStatus').textContent='';
+  $('retryReadingBtn').hidden=true;
+  $('readingStatus').textContent='';
+  $('readingAnalysis').classList.add('hidden');
+  $('readingAnalysis').setAttribute('aria-busy','false');
+  for(const id of ['analysisText','comboText','conclusionText'])$(id).textContent='';
 }
-
-function relationshipConclusion(){return RiverReading.conclusion(current,readingContext());}
+function escapeHTML(text){return String(text).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function showCardDetail(i){
+  detailIndex=i;
+  const c=current[i];
+  const reading=readingResult?.cards[i];
+  const meaning=reading?.meaning || c.plain?.[c.orientation] || coreMeaning(c);
+  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${escapeHTML(c.en)}"><div><p class="eyebrow">${positionZH[i]} · ${positions[i]}</p><h2>${escapeHTML(c.zh)} <small>${escapeHTML(c.en)}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>${reading?'這張牌的意思':'基本牌義'}</h3><p>${escapeHTML(meaning)}</p><h3>對應你的問題</h3><p>${reading?escapeHTML(reading.application):'四張牌翻開後，AI 會結合你的完整問題進行解讀。'}</p>`;
+}
 function buildAnalysis(){
+  if(!readingResult)return {overall:'',connections:'',conclusion:''};
   const paragraphs=current.map((c,i)=>{
-    const r=RiverReading.interpret(c,i,readingContext());
-    return `${r.label}｜${c.zh}（${orientationLabel(c)}）\n${r.meaning}${r.application}`;
+    const r=readingResult.cards[i];
+    return `${positionZH[i]}｜${c.zh}（${orientationLabel(c)}）\n${r.meaning}${r.application}`;
   });
-  return {overall:paragraphs.slice(0,2).join('\n\n'),connections:paragraphs.slice(2).join('\n\n'),conclusion:relationshipConclusion()};
+  return {overall:paragraphs.slice(0,2).join('\n\n'),connections:paragraphs.slice(2).join('\n\n'),conclusion:readingResult.conclusion};
 }
 
 function buildReadingPrompt(){
@@ -267,17 +288,19 @@ function wrapText(ctx,text,x,y,maxWidth,lineHeight,maxLines){
 
 function buildShareCaption(){
   const cardLines=current.map((c,i)=>`${positionZH[i]}｜${c.zh} ${orientationLabel(c)}`).join('\n');
-  const summary=$('conclusionText').textContent || buildAnalysis().conclusion;
+  const summary=readingResult?.conclusion || '';
   return `River Tarot 四張塔羅牌解讀\n主題：${topicZH[topic]}\n問題：${questionText}\n${cardLines}\n\n結論：${summary}\n\n#RiverTarot #塔羅 #TarotReading`;
 }
 
 async function generateShareImage(showStatusMsg=false){
-  if(current.length!==4 || !current.every(c=>c.revealed)){
-    if(showStatusMsg) $('shareStatus').textContent='請先翻開四張牌，再分享。';
+  if(!readingResult || current.length!==4 || !current.every(c=>c.revealed)){
+    if(showStatusMsg) $('shareStatus').textContent='請等待 AI 解讀完成，再分享。';
     return null;
   }
   if(showStatusMsg) $('shareStatus').textContent='正在準備分享圖…';
-  const canvas=$('shareCanvas');
+  const revision=readingRevision;
+  const snapshot={cards:current.map(c=>({...c})),question:questionText,topic,labels:[...positionZH],summary:readingResult.shareSummary};
+  const canvas=document.createElement('canvas');
   const ctx=canvas.getContext('2d');
   canvas.width=1080; canvas.height=1920;
   const W=canvas.width,H=canvas.height;
@@ -296,17 +319,17 @@ async function generateShareImage(showStatusMsg=false){
   ctx.fillStyle='#f2deed';ctx.font='bold 74px Georgia,serif';
   ctx.fillText('RIVER TAROT',74,280);
   ctx.fillStyle='#c89acb';ctx.font='26px sans-serif';
-  ctx.fillText(`${topicZH[topic]}  /  ${new Date().toLocaleDateString('zh-TW')}`,78,332);
+  ctx.fillText(`${topicZH[snapshot.topic]}  /  ${new Date().toLocaleDateString('zh-TW')}`,78,332);
   const scene=await loadImg('assets/river-cat-vinyl.gif');
   ctx.drawImage(scene,662,367,336,448);
   ctx.fillStyle='#9fd4c5';ctx.font='22px "Courier New",monospace';ctx.fillText('MY QUESTION',78,439);
   ctx.fillStyle='#f2deed';ctx.font='34px sans-serif';
-  wrapText(ctx,questionText,78,500,534,49,6);
+  wrapText(ctx,snapshot.question,78,500,534,49,6);
   ctx.fillStyle='#a08aa9';ctx.font='24px serif';
   ctx.fillText('在夜色裡，聽見自己的答案。',78,773);
   ctx.fillStyle='#bfa4ca';ctx.font='22px "Courier New",monospace';
   ctx.fillText('01 — THE CARDS',78,860);
-  const imgs=await Promise.all(current.map(c=>loadImg(c.image)));
+  const imgs=await Promise.all(snapshot.cards.map(c=>loadImg(c.image)));
   const cardW=204,cardH=306,topY=904;
   imgs.forEach((img,i)=>{
     const x=78+i*240;
@@ -314,19 +337,19 @@ async function generateShareImage(showStatusMsg=false){
     ctx.shadowColor='#00000080';ctx.shadowBlur=18;
     ctx.fillStyle='#d4bdd2';ctx.fillRect(-cardW/2-4,-cardH/2-4,cardW+8,cardH+8);
     ctx.shadowBlur=0;
-    if(current[i].orientation==='reversed')ctx.rotate(Math.PI);
+    if(snapshot.cards[i].orientation==='reversed')ctx.rotate(Math.PI);
     ctx.drawImage(img,-cardW/2,-cardH/2,cardW,cardH);ctx.restore();
     ctx.textAlign='center';ctx.fillStyle='#a7d5c8';ctx.font='23px sans-serif';
-    ctx.fillText(positionZH[i],x+cardW/2,1251);
+    ctx.fillText(snapshot.labels[i],x+cardW/2,1251);
     ctx.fillStyle='#f0dfee';ctx.font='24px sans-serif';
-    ctx.fillText(current[i].zh,x+cardW/2,1288,222);
-    ctx.fillStyle='#b49bc4';ctx.font='20px sans-serif';ctx.fillText(orientationLabel(current[i]),x+cardW/2,1320);
+    ctx.fillText(snapshot.cards[i].zh,x+cardW/2,1288,222);
+    ctx.fillStyle='#b49bc4';ctx.font='20px sans-serif';ctx.fillText(orientationLabel(snapshot.cards[i]),x+cardW/2,1320);
   });
   ctx.textAlign='left';ctx.fillStyle='#100f1ee8';ctx.fillRect(66,1370,948,330);
   ctx.strokeStyle='#775f86';ctx.strokeRect(66,1370,948,330);
   ctx.fillStyle='#a7d5c8';ctx.font='24px sans-serif';ctx.fillText('02 — 給此刻的你',90,1412);
   ctx.fillStyle='#eee0f0';ctx.font='26px sans-serif';
-  wrapText(ctx,($('conclusionText').textContent || buildAnalysis().conclusion),90,1462,895,39,6);
+  wrapText(ctx,snapshot.summary,90,1462,895,39,6);
   ctx.fillStyle='#c7b0d4';ctx.font='italic 24px serif';ctx.fillText('牌不替你決定，但會把霧打亮。',78,1760);
   ctx.fillStyle='#9c87af';ctx.font='18px "Courier New",monospace';ctx.fillText('riverlee1031-cpu.github.io/River-Tarot',78,1802);
   // Fine CRT lines match the site without obscuring the reading.
@@ -338,6 +361,7 @@ async function generateShareImage(showStatusMsg=false){
     const res=await fetch(dataUrl);
     blob=await res.blob();
   }
+  if(revision!==readingRevision)return null;
   const filename=`river-tarot-ig-story-${Date.now()}.png`;
   let file=null;
   try{ file=new File([blob],filename,{type:'image/png'}); }catch(e){ file=blob; file.name=filename; }
@@ -353,10 +377,11 @@ async function generateShareImage(showStatusMsg=false){
 }
 
 function prepareShareAsset(){
+  const revision=readingRevision;
   cachedShareAsset=null;
   shareAssetPromise=generateShareImage(false).catch(err=>{
     console.error('prepareShareAsset',err);
-    cachedShareAsset=null;
+    if(revision===readingRevision)cachedShareAsset=null;
     return null;
   });
 }
@@ -371,11 +396,12 @@ function downloadShareAsset(asset){
 }
 
 async function shareReading(){
-  if(current.length!==4 || !current.every(c=>c.revealed)){
-    $('shareStatus').textContent='請先翻開四張牌，再分享。';
+  if(!readingResult || current.length!==4 || !current.every(c=>c.revealed)){
+    $('shareStatus').textContent='請等待 AI 解讀完成，再分享。';
     return;
   }
   $('storyPreview').hidden=false;
+  const revision=readingRevision;
   const button=$('shareReadingBtn');
   button.disabled=true;
   $('shareStatus').textContent='正在準備分享…';
@@ -383,6 +409,7 @@ async function shareReading(){
     let asset=cachedShareAsset;
     if(!asset){
       asset=shareAssetPromise?await shareAssetPromise:await generateShareImage(false);
+      if(revision!==readingRevision)return;
       if(!asset) throw new Error('No share asset');
       $('shareStatus').textContent='IG 限動圖片已準備好，請再按一次分享。';
       return;
@@ -397,9 +424,11 @@ async function shareReading(){
       if(canShare){
         try{
           await navigator.share(shareData);
+          if(revision!==readingRevision)return;
           $('shareStatus').textContent='已交給系統分享。請在 Instagram 選「限時動態」；若沒有此選項，請儲存圖片後從 IG 新增限動。';
           return;
         }catch(err){
+          if(revision!==readingRevision)return;
           if(err && err.name==='AbortError'){
             $('shareStatus').textContent='已取消分享。需要的話再按一次即可。';
             return;
@@ -411,23 +440,47 @@ async function shareReading(){
 
     downloadShareAsset(asset);
     try{ if(navigator.clipboard?.writeText) await navigator.clipboard.writeText(text); }catch(e){}
+    if(revision!==readingRevision)return;
     $('shareStatus').textContent='限動圖片已下載。開啟 Instagram → ＋ → 限時動態 → 選取剛儲存的圖片。';
   }catch(err){
+    if(revision!==readingRevision)return;
     console.error(err);
     $('shareStatus').textContent='分享暫時失敗。請再按一次；若仍失敗，重新整理頁面後重試。';
   }finally{
-    button.disabled=false;
+    if(revision===readingRevision)button.disabled=false;
   }
 }
 
-function renderAnalysis(){
-  $('revealPrompt').textContent='四張牌已全部翻開，以下為完整中文解析。';
-  const r=buildAnalysis();
-  $('analysisText').textContent=r.overall;
-  $('comboText').textContent=r.connections;
-  $('conclusionText').textContent=r.conclusion;
-  $('readingAnalysis').classList.remove('hidden');
-  prepareShareAsset();
+async function renderAnalysis(){
+  if(current.length!==4 || !current.every(c=>c.revealed) || aiSession.pending)return;
+  if(readingResult)return;
+  const revision=readingRevision;
+  $('revealPrompt').textContent='四張牌已翻開，正在理解你的問題與牌組。';
+  $('readingStatus').textContent='RIVER 正在為這個問題解牌，請稍候…';
+  $('retryReadingBtn').hidden=true;
+  $('readingAnalysis').setAttribute('aria-busy','true');
+  try{
+    const result=await aiSession.request({topic,question:questionText,cards:current.map(c=>({id:c.id,orientation:c.orientation}))},window.RIVER_CONFIG?.readingEndpoint);
+    if(revision!==readingRevision || !result)return;
+    readingResult=result;
+    const r=buildAnalysis();
+    $('analysisText').textContent=r.overall;
+    $('comboText').textContent=r.connections;
+    $('conclusionText').textContent=r.conclusion;
+    $('readingAnalysis').classList.remove('hidden');
+    $('readingStatus').textContent='AI 已依照你的問題完成解讀。';
+    $('revealPrompt').textContent='點選任一張牌，可查看它如何對應你的問題。';
+    showCardDetail(detailIndex);
+    $('shareReadingBtn').disabled=false;
+    prepareShareAsset();
+  }catch(error){
+    if(revision!==readingRevision)return;
+    $('readingStatus').textContent=error instanceof TypeError?'解牌服務連線失敗，請確認網路後重試。':error.message;
+    $('revealPrompt').textContent='牌組已保留，重新解讀不會重新抽牌。';
+    $('retryReadingBtn').hidden=false;
+  }finally{
+    if(revision===readingRevision)$('readingAnalysis').setAttribute('aria-busy','false');
+  }
 }
 
 

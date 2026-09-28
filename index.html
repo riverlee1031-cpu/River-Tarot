@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090b12">
-<title>RIVER TAROT v1.11</title>
-<link rel="stylesheet" href="style.css?v=1.9-ig-story">
+<title>RIVER TAROT v1.12</title>
+<link rel="stylesheet" href="style.css?v=1.12-live-ai">
 </head>
 <body>
 <div class="crt" aria-hidden="true"></div>
@@ -32,7 +32,7 @@
 
     <main class="main-content">
       <section class="brand-block">
-        <h1>RIVER TAROT <small>v1.11</small></h1>
+        <h1>RIVER TAROT <small>v1.12</small></h1>
         <p class="subbrand">A 78-CARD RETRO TAROT EXPERIENCE</p>
         <p class="mystic-cn">在靜謐與直覺之間，讓牌替你照見尚未說出口的答案。</p>
         <p class="micro-line">ONE QUESTION. A DIFFERENT TOMORROW.</p>
@@ -58,9 +58,9 @@
 
             <section class="step-panel question-panel">
               <div class="step-title"><span>3</span><strong>DESCRIBE YOUR QUESTION</strong></div>
-              <label class="question-label" for="questionInput">簡單寫下你想問的事（50字內）</label>
-              <textarea id="questionInput" class="question-input" maxlength="50" rows="3" placeholder="例如：我和某人的關係接下來會怎麼發展？"></textarea>
-              <div class="question-meta"><span>Keep it simple. One clear question works best.</span><strong id="questionCount">0 / 50</strong></div>
+              <label class="question-label" for="questionInput">簡單寫下你想問的事（300字內）</label>
+              <textarea id="questionInput" class="question-input" maxlength="300" rows="3" placeholder="例如：我和某人的關係接下來會怎麼發展？"></textarea>
+              <div class="question-meta"><span>問題與四張牌將交由 OpenAI 產生解讀，請避免填入姓名、聯絡方式等個人資料。</span><strong id="questionCount">0 / 300</strong></div>
             </section>
 
             <section class="step-panel begin-panel">
@@ -122,6 +122,8 @@
           <p>翻開牌卡後，點選任一張牌查看中文解讀。</p>
         </div>
 
+        <p id="readingStatus" class="status" role="status" aria-live="polite"></p>
+        <button id="retryReadingBtn" class="secondary-btn" type="button" hidden>重新解讀這組牌</button>
         <section id="readingAnalysis" class="reading-analysis hidden">
           <div class="analysis-box"><h4>你與外在的狀態</h4><p id="analysisText" lang="zh-Hant"></p></div>
           <div class="analysis-box combo"><h4>挑戰與建議</h4><p id="comboText" lang="zh-Hant"></p></div>
@@ -159,7 +161,7 @@
       <a href="https://www.instagram.com/riverboxing/" target="_blank" rel="noreferrer" title="Instagram">▣</a>
       <span class="footer-url">riverlee1031-cpu.github.io/River-Tarot</span>
     </div>
-    <div class="footer-meta"><span class="credit-line">CREDIT BY RIVER</span><span class="update-link">v1.11 · UPDATE 11</span></div>
+    <div class="footer-meta"><span class="credit-line">CREDIT BY RIVER</span><span class="update-link">v1.12 · UPDATE 12</span></div>
     <div class="clockbox"><span>▥　♪</span><span id="clock"></span></div>
   </footer>
 </div>
@@ -176,7 +178,8 @@
   </span>
 </button>
 
-<script src="reading-engine.js?v=1.11-river-reading"></script>
-<script src="app.js?v=1.11-river-reading"></script>
+<script src="runtime-config.js?v=1.12-live-ai"></script>
+<script src="reading-client.js?v=1.12-live-ai"></script>
+<script src="app.js?v=1.12-live-ai"></script>
 </body>
 </html>

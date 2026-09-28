@@ -250,3 +250,5 @@
 
 /* Keep short reading paragraphs readable on desktop and mobile. */
 #analysisText,#comboText{white-space:pre-line}
+#retryReadingBtn[hidden]{display:none}
+#readingStatus{line-height:1.7}
