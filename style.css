@@ -247,3 +247,8 @@
 #storyPreview{margin:14px 0;padding:14px;border:1px solid #80618f;background:#111021;color:#e4d1eb;font:14px/1.6 "Microsoft JhengHei",sans-serif}
 #storyPreview summary{cursor:pointer;color:#b2dccf}
 #storyDownload{display:inline-block;padding:10px 16px;background:#614076;border:1px solid #b78bcf;color:#fff;text-decoration:none}
+
+/* Keep short reading paragraphs readable on desktop and mobile. */
+#analysisText,#comboText{white-space:pre-line}
+.meaning-source{font-size:13px!important;line-height:1.6}
+.meaning-source a{color:inherit;text-underline-offset:3px}

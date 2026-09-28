@@ -137,7 +137,7 @@ const specialCombos = [
 ];
 
 async function init(){
-  cards = await fetch('tarot.json').then(r=>r.json());
+  cards = await fetch('tarot.json?v=1.10-plain-meaning').then(r=>r.json());
   bindUI();
   updateClock();
   setInterval(updateClock,1000);
@@ -324,23 +324,26 @@ function riverMeaning(c){
   return c.river?.[side] || '';
 }
 
+const meaningReference = 'https://mofatarot.com/pages/taluopai-paiyi-jieshi';
+
+function simpleMeaning(c){
+  return c.plain?.[c.orientation] || coreMeaning(c);
+}
+
 function plainMeaning(c,i){
-  const core=coreMeaning(c);
-  const positionLead=[
-    '這張牌放在「我」，是在照出你現在帶進問題裡的狀態',
-    '這張牌放在「對方」，是在描述對方目前較可能呈現的態度',
-    '這張牌放在「關係現況」，是在說明你們現在反覆上演的互動模式',
-    '這張牌放在「建議」，是在提醒你最值得採取的方向'
-  ][i];
-  const turn=isUp(c)
-    ? `正位讓「${core}」比較容易直接發揮；有機會就用，但不用演成八點檔主角。`
-    : `逆位表示「${core}」可能卡住、過量或還沒說出口；先修正節奏，不必急著替結局配樂。`;
-  return `${positionLead}。${turn}`;
+  const leads = {
+    love:['你的狀態','對方可能呈現的狀態','你們的互動','可以調整的方向'],
+    career:['你的工作狀態','團隊或合作方的狀態','目前的工作情況','可以調整的方向'],
+    money:['你面對金錢的狀態','合作方或外在條件','目前的資源安排','可以調整的方向'],
+    general:['你的狀態','外在人物或環境','目前的情況','可以調整的方向']
+  };
+  return `${leads[topic][i]}：${simpleMeaning(c)}`;
 }
 
 function showCardDetail(i){
   const c=current[i];
-  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${positionZH[i]} · ${positions[i]}</p><h2>${c.zh} <small>${c.en}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>核心牌義</h3><p>${coreMeaning(c)}</p><h3>簡單說</h3><p>${plainMeaning(c,i)}</p><h3>${topicZH[topic]}解讀</h3><p>${topicMeaning(c)}</p><h3>RIVER READING</h3><p>${riverMeaning(c)}</p>`;
+  const context={love:'可以對照最近的聯絡、相處和彼此的付出。對方的想法仍需要透過溝通確認。',career:'可以對照分工、進度，以及實際得到的回應。',money:'可以對照收支、可用資源和已確認的條件。',general:'可以對照最近發生的事，看看哪個部分最貼近你的處境。'}[topic];
+  detail.innerHTML=`<div class="detail-card-line"><img class="mini ${c.orientation==='reversed'?'rev':''}" src="${c.image}" alt="${c.en}"><div><p class="eyebrow">${positionZH[i]} · ${positions[i]}</p><h2>${c.zh} <small>${c.en}</small></h2><div class="orientation">${orientationLabel(c)}</div></div></div><h3>這張牌的意思</h3><p>${simpleMeaning(c)}</p><h3>放在這個位置</h3><p>${plainMeaning(c,i)}</p><p>${context}</p><p class="meaning-source">牌義參考：<a href="${meaningReference}" target="_blank" rel="noopener noreferrer">MOFA 塔羅牌義</a> · RIVER 白話整理</p>`;
 }
 
 function cardSeed(){return current.reduce((n,c,i)=>n+(c.id+1)*(i+5)+(c.orientation==='reversed'?71:0),topic.length*29);}
@@ -411,53 +414,21 @@ function pairTransition(a,b,label){
 }
 
 function relationshipConclusion(){
-  const [me,them,dynamic,advice]=current;
-  const uprightCount=current.filter(isUp).length;
-  const topicFrame={
-    love:['你這邊的情感與期待','對方目前的回應能量','這段關係'],
-    career:['你目前的工作立場與能力','相關人物或環境的回應','這個工作局面'],
-    money:['你面對金錢與風險的狀態','市場、合作方或現實條件','這個財務局面'],
-    general:['你目前帶進問題的狀態','外在人物或環境的回應','目前的整體處境']
-  }[topic];
-  const meTone=isUp(me)?`${topicFrame[0]}相對清楚、願意面對`:`${topicFrame[0]}可能有保留、猶豫或內耗`;
-  const themTone=isUp(them)?`${topicFrame[1]}較開放或有可用空間`:`${topicFrame[1]}比較保留、延遲或有自己的卡點`;
-  const dynamicTone=isUp(dynamic)?`${topicFrame[2]}的「${dynamic.zh}」正位表示仍有可被看見、可被推進的部分`:`${topicFrame[2]}的「${dynamic.zh}」逆位提醒，現在最重要的不是硬推結果，而是先看清楚失衡或誤解在哪裡`;
-  const adviceTone=isUp(advice)?`建議牌「${advice.zh}」正位比較像一句明確提示：採取它最健康、最成熟的做法`:`建議牌「${advice.zh}」逆位是在提醒你別用力過頭，先修正舊模式，再決定是否推進`;
-  const punchline={
-    love:uprightCount>=2?'簡單說：有戲，但先別把預告片直接剪成大結局。':'簡單說：目前訊號有點差，腦補再大聲也不會自動變成雙向。',
-    career:uprightCount>=2?'簡單說：局面能動，但真正升級的是方向，不是忙碌音效。':'簡單說：先別把加班當成進度條，它有時只是螢幕保護程式。',
-    money:uprightCount>=2?'簡單說：機會可以看，錢包仍要保持清醒，不要讓它酒後駕駛。':'簡單說：現在比較適合看清條件，別讓衝動替信用卡主持會議。',
-    general:uprightCount>=2?'簡單說：門有打開，但腳還是要自己跨，宇宙不提供代走服務。':'簡單說：現在霧比較厚，先看清路，別急著跟命運比誰踩油門快。'
-  }[topic];
-  return `${meTone}；${themTone}。${dynamicTone}。${adviceTone}。${punchline}`;
+  const dynamic=current[2], advice=current[3];
+  return `目前重點：${simpleMeaning(dynamic)} 下一步：${simpleMeaning(advice)}`;
 }
 
 function buildAnalysis(){
   const [me,them,dynamic,advice]=current;
-  const questionFrame=questionText?`針對你寫下的問題「${questionText}」，`:'這次牌陣中，';
-  const frames={
-    love:['你目前帶進這段關係的狀態','對方在這段互動中的能量','你們目前真正存在的互動模式'],
-    career:['你目前面對工作的狀態','相關人物、團隊或環境的回應','工作局面的實際運作方式'],
-    money:['你目前面對金錢與風險的狀態','市場、合作方或現實條件的回應','財務局面的實際發展'],
-    general:['你目前帶進問題的狀態','外在人物或環境的回應','事情現在的運作方式']
-  }[topic];
-  const humor={love:'感情不是密室逃脫，不必每個眼神都解成摩斯密碼。',career:'工作不是靠忙碌音效過關，真正有用的是方向與回應。',money:'錢包沒有第六感，數字與條件還是要坐主桌。',general:'宇宙可以給提示，但它通常不幫忙代填人生選擇題。'}[topic];
-  const overall=`${questionFrame}「${me.zh}」${orientationLabel(me)}說明${frames[0]}；「${them.zh}」${orientationLabel(them)}反映${frames[1]}；「${dynamic.zh}」${orientationLabel(dynamic)}點出${frames[2]}；最後的「${advice.zh}」${orientationLabel(advice)}則替整組牌收尾。${orientationPattern()} ${majorPattern()} ${humor}`;
-  const connections=[
-    pairTransition(me,them,'我 ↔ 對方'),
-    `現況牌「${dynamic.zh}」${orientationLabel(dynamic)}把焦點放在「${coreMeaning(dynamic)}」。`,
-    `收尾牌「${advice.zh}」${orientationLabel(advice)}則強調「${coreMeaning(advice)}」。`,
-    suitPattern(),
-    ...specialConnections()
-  ].filter(Boolean).join(' ');
-  const conclusion=relationshipConclusion();
-  return {overall,connections,conclusion};
+  const overall=current.slice(0,2).map((c,i)=>`${c.zh}（${orientationLabel(c)}）｜${plainMeaning(c,i)}`).join('\n\n');
+  const connections=`${dynamic.zh}（${orientationLabel(dynamic)}）｜${plainMeaning(dynamic,2)}\n\n${advice.zh}（${orientationLabel(advice)}）｜${plainMeaning(advice,3)}`;
+  return {overall,connections,conclusion:relationshipConclusion()};
 }
 
 function openChatGPTReading(){
   if(current.length!==4)return;
-  const cardLines=current.map((c,i)=>`${positionZH[i]}：${c.zh}（${c.en}）${orientationLabel(c)}`).join('；');
-  const prompt=`請用繁體中文深入解讀我的四張關係塔羅牌。我的問題是：「${questionText}」。牌陣位置依序是：我／對方／關係現況／建議。${cardLines}。請清楚分析雙方能量差異、目前互動核心、正逆位影響與可能盲點，語氣自然並帶一點幽默，但不要把塔羅當成必然預言。最後只給一段明確結論，不要另外列行動建議。`;
+  const cardLines=current.map((c,i)=>`${positionZH[i]}：${c.zh}（${c.en}）${orientationLabel(c)}，白話牌義：${simpleMeaning(c)}`).join('；');
+  const prompt=`請用簡單好懂的繁體中文解讀我的四張塔羅牌。主題：${topicZH[topic]}。我的問題是：「${questionText}」。牌陣位置依序是：我／對方或外在環境／目前狀況／建議。${cardLines}。請參考 ${meaningReference} 的對應正逆位牌義，用自己的話解釋，避免照抄；若無法讀取網站，請明說並以附上的白話牌義為基礎。每張牌用一到兩句說明意思及如何對應問題，最後用一小段整理整體重點和一個可做的下一步。避免術語和冗長比喻，不要只用正逆位數量判斷好壞，也不要斷言對方的想法或必然結果。`;
   const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
   window.open(url,'_blank','noopener,noreferrer');
 }
